@@ -1,43 +1,4 @@
-// import path from 'path'
-// import { app, ipcMain } from 'electron'
-// import serve from 'electron-serve'
-// import { createWindow } from './helpers'
 
-// const isProd = process.env.NODE_ENV === 'production'
-
-// if (isProd) {
-//   serve({ directory: 'app' })
-// } else {
-//   app.setPath('userData', `${app.getPath('userData')} (development)`)
-// }
-
-// ;(async () => {
-//   await app.whenReady()
-
-//   const mainWindow = createWindow('main', {
-//     width: 1000,
-//     height: 600,
-//     webPreferences: {
-//       preload: path.join(__dirname, 'preload.js'),
-//     },
-//   })
-
-//   if (isProd) {
-//     await mainWindow.loadURL('app://./home')
-//   } else {
-//     const port = process.argv[2]
-//     await mainWindow.loadURL(`http://localhost:${port}/home`)
-//     mainWindow.webContents.openDevTools()
-//   }
-// })()
-
-// app.on('window-all-closed', () => {
-//   app.quit()
-// })
-
-// ipcMain.on('message', async (event, arg) => {
-//   event.reply('message', `${arg} World!`)
-// })
 
 const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path'); 
@@ -58,32 +19,41 @@ let winlogin;
 
 app.whenReady().then(createWindow)
 
+const isProd = process.env.NODE_ENV === 'production'
+
+
 // ------------
 //    WINDOWS
 // ------------
 async function createWindow () {
-   win = new BrowserWindow({
-    
-    fullscreen:true,
-    maximize: true,
-    titleBarStyle: 'hidden',
-    titleBarOverlay: true,
-    webPreferences: {
-      //  nodeIntegration: true,
-     // contextIsolation:true,
-      devTools:true,
-      
-    preload:path.join(__dirname, './preload-index.js')
-    }
+  win = new BrowserWindow({
+   
+   fullscreen:true,
+   maximize: true,
+   titleBarStyle: 'hidden',
+   titleBarOverlay: true,
+   webPreferences: {
+     //  nodeIntegration: true,
+    // contextIsolation:true,
+     devTools:true,
+     
+   preload:path.join(__dirname, 'preload-index.js')
+   }
 
-  })
+ })
 
   //win.loadFile(path.join(__dirname,'../FrontEnd/pages/notas/ver_notas.html'))
   // win.loadFile(path.join(__dirname,'../FrontEnd/index.html'))
   win.maximize(true)
   win.webContents.openDevTools();
   
-
+  if (isProd) {
+    await win.loadURL('app://./home')
+  } else {
+    const port = process.argv[2]
+    await win.loadURL(`http://localhost:${port}/home`)
+    win.webContents.openDevTools()
+  }
 }
 
 function loginWindow () {
@@ -94,7 +64,7 @@ function loginWindow () {
     // nodeIntegration: true,
     // contextIsolation:true,
      devTools:true,
-     preload:path.join(__dirname, './preload-login.js')
+     preload:path.join(__dirname, 'preload-login.js')
      
    }
  })

@@ -1,11 +1,12 @@
-import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Image, Box, Heading, HStack, Text, UnorderedList, ListItem } from '@chakra-ui/react'
+import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Image, Box, Heading, HStack, Text, UnorderedList, ListItem, Link } from '@chakra-ui/react'
 
-export const ModifiableAccordionItem = ({title, iconUrl, description}) => {
+export const ModifiableAccordionItem = ({ nombre, iconUrl, description = []} ) => {
   return (
     <AccordionItem
         w="20rem"
         h="fit-content"
     >
+        
         <Heading 
             as="h2"
             color="brand.gray"
@@ -14,12 +15,12 @@ export const ModifiableAccordionItem = ({title, iconUrl, description}) => {
                 <HStack as="span" flex='1' textAlign='left' w="20rem">
                     <Image
                         src={ iconUrl }
-                        alt={ title }
+                        alt={ nombre }
                         width="1.5rem"
                         height="auto"
                     />
 
-                    <Text color="brand.primary" fontSize="md">{ title }</Text>
+                    <Text color="brand.primary" fontSize="md">{ nombre }</Text>
                 </HStack>
                 <AccordionIcon />
             </AccordionButton>
@@ -29,13 +30,22 @@ export const ModifiableAccordionItem = ({title, iconUrl, description}) => {
                 {
                     description.map(( element, index ) => {
                         return(
-                            <ListItem fontSize="sm" color="brand.primary">{element.title}</ListItem>
+                            <Link href={element.path}>
+                                <ListItem 
+                                    key={`list-item-${ element.nombre }-${ index }`} 
+                                    fontSize="sm" 
+                                    color="brand.primary"
+                                >
+                                    {element.nombre}
+                                </ListItem>
+                            </Link>
                         )
                     })
                 }
             </UnorderedList>
-           
+        
         </AccordionPanel>
+    
        
     </AccordionItem>
 
