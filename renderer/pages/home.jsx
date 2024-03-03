@@ -1,18 +1,9 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Head from 'next/head'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Button, Heading } from '@chakra-ui/react'
-import { Box,Text, VStack } from '@chakra-ui/react'
-import useDryCleanAPI from '../hooks/useDryCleanAPI'
+import { Heading, VStack } from '@chakra-ui/react'
 
 export default function HomePage() {
 
-  const { sucursales } = useDryCleanAPI()
-
-  
-  
-  
   return (
     <>
       <Head>

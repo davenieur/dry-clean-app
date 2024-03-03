@@ -30,9 +30,8 @@ export const ModifiableAccordionItem = ({ nombre, iconUrl, description = []} ) =
                 {
                     description.map(( element, index ) => {
                         return(
-                            <Link href={element.path}>
+                            <Link href={element.path} key={`list-item-${ element.nombre }-${ index }`} >
                                 <ListItem 
-                                    key={`list-item-${ element.nombre }-${ index }`} 
                                     fontSize="sm" 
                                     color="brand.primary"
                                 >
