@@ -1,13 +1,10 @@
 // Header.tsx
-import { VStack, Image,  Text, Box, Link as ChakraLink, HStack, IconButton,useDisclosure, Menu, MenuButton, MenuList, MenuItem, Icon } from '@chakra-ui/react';
+import { VStack, Image,  Link } from '@chakra-ui/react';
 import React, { memo, useState } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { ExternalLinkIcon, HamburgerIcon } from '@chakra-ui/icons';
-import { ModifiableAccordion, ModifiableAccordionItem, ModifiableMenu } from '../modifiables';
-import { FaShop } from "react-icons/fa6";
+import { ModifiableAccordion, ModifiableAccordionItem } from '../modifiables';
 
-export const CustomDrawer = () => {
+export const Drawer = () => {
 
   const route = useRouter()
 
@@ -59,13 +56,12 @@ export const CustomDrawer = () => {
     >
       {/*  logo */}
       
-      <Link href={`/home`} >
+      <Link href={`/home`} cursor="pointer">
         <Image
             src='/images/DRYlogo_orig.png'
             alt='DRY Logo'
-            width="10rem"
+            width="15rem"
             height="auto"
-            transition='all 0.2s'
         />
       </Link>  
     

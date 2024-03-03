@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 
 
 const useDryCleanAPI = ()  => {
+    // Setters y getters
     const [sucursales, setSucursales] = useState([]);
+    
+    const [loadingSucursales, setLoadingSucursales] = useState(true);
 
-    const [isLoading, setIsLoading] = useState(true);
+    const [loadingPrices, setLoadingPrices] = useState(true);
 
-    const [selectedSucursal, setSelectedSucursal] = useState('');
+    const [selectedSucursal, setSelectedSucursal] = useState({});
 
     const [listaPrecios, setListaPrecios] = useState([])
     
@@ -26,7 +29,7 @@ const useDryCleanAPI = ()  => {
         const sucursales = await getSucursales();
         setSucursales(sucursales);
         setSelectedSucursal(sucursales[0]);
-        setIsLoading(false);
+        setLoadingSucursales(false)
       };
     
       fetchSucursales();
@@ -35,13 +38,10 @@ const useDryCleanAPI = ()  => {
     const getListaPrecios = async (id) => {
       try {
         const listaPrecios = await window.SucursalesAPI.getListPrecios(id)
-        console.log(listaPrecios)
-
         return listaPrecios
-    } catch (error) {
-        console.error('Error al obtener la lista de precios:', error);
-    }
-
+      } catch (error) {
+          console.error('Error al obtener la lista de precios:', error);
+      }
     }
 
     // Obtenemos la lista de precios
@@ -49,7 +49,7 @@ const useDryCleanAPI = ()  => {
       const fetchListaPrecios = async () => {
         const listaPrecios = await getListaPrecios(selectedSucursal.id);
         setListaPrecios(listaPrecios);
-        setIsLoading(false);
+        setLoadingPrices(false);
       };
     
       fetchListaPrecios();
@@ -59,13 +59,24 @@ const useDryCleanAPI = ()  => {
       setSelectedSucursal(sucursal);
     }
 
+    const deletePrenda = (prenda) => {
+      console.log("deletePrenda", prenda)
+    }
+
+    const updatePrenda = (sucursal, prenda) => {
+      const sucursalId = sucursal.id
+      console.log("updatePrenda", sucursalId, prenda)
+    }
 
     return {
         sucursales,
-        isLoading,
+        loadingPrices,
+        loadingSucursales,
         selectedSucursal,
         listaPrecios,
-        selectSucursal
+        selectSucursal,
+        deletePrenda,
+        updatePrenda
     };
   };
   

@@ -1,14 +1,18 @@
 import React from 'react'
 import Head from 'next/head'
 
-import { Heading, MenuItem, Text, VStack, Divider, Td, Tr  } from '@chakra-ui/react'
+import { Heading, MenuItem, Text, VStack, Divider, Td, Tr, Button, ButtonGroup  } from '@chakra-ui/react'
 import useDryCleanAPI from '../../hooks/useDryCleanAPI'
 import { ModifiableMenu, ModifiableTable } from '../../components/modifiables'
+import { Spinner } from '@chakra-ui/react'
+import { MdBuild , MdCall } from "react-icons/md"
+import { FaTrash } from 'react-icons/fa'
 
 export default function HomePage() {
 
-  const { sucursales, selectedSucursal, listaPrecios, selectSucursal } = useDryCleanAPI()
+  const { sucursales, selectedSucursal, listaPrecios,loadingPrices, selectSucursal, deletePrenda, updatePrenda } = useDryCleanAPI()
 
+  console.log(selectedSucursal)
 
   return (
     <>
@@ -50,30 +54,48 @@ export default function HomePage() {
               }
             </VStack>
           }
-        />
-        <ModifiableTable 
-          w="100%"
-          headers={[ "Id", "Nombre", "Servicio", "Precio"]}
-          tbody={ 
-            <>
-              {
-                listaPrecios.map(( element, index ) => {
-                  const { id, nombre, servicio, precio } = element
+        /> 
+        
+        {
+          loadingPrices ? (
+            <Spinner size='md' />
+          ) : (
+            <ModifiableTable 
+              p="1rem"
+              w="100%"
+              headers={[ "Id", "Nombre", "Servicio", "Precio", "Acciones"]}
+              tbody={ 
+                <>
+                  {
+                    listaPrecios.map(( element, index ) => {
+                      const { id, nombre, servicio, precio } = element
 
-                  return(
-                      <Tr key={ index }>
-                          <Td>{ id }</Td>
-                          <Td>{ nombre }</Td>
-                          <Td>{ servicio }</Td>
-                          <Td>{ precio || '0' } </Td>
-                      </Tr>
-                      
-                  )
-                })
+                      return(
+                        <Tr key={ index }>
+                            <Td>{ id }</Td>
+                            <Td>{ nombre }</Td>
+                            <Td>{ servicio }</Td>
+                            <Td>${ precio || '0' } </Td>
+                            <Td> 
+                              <ButtonGroup variant='outline' spacing='1'>
+                                <Button leftIcon={<FaTrash />} colorScheme='red' fontSize="sm" onClick={() => deletePrenda( element )}>Eliminar</Button>
+                                <Button leftIcon={<MdBuild />} colorScheme='blue' variant='solid' fontSize="sm" onClick={() => updatePrenda(selectedSucursal, element)}>
+                                  Editar
+                                </Button>
+                              </ButtonGroup>
+                            </Td>
+                        </Tr>
+                          
+                      )
+                    })
+                  }
+                </>
               }
-            </>
-          }
-        />
+            />
+          )
+        }
+
+        
         
 
       </VStack>

@@ -2,3 +2,4 @@ export * from './ModifiableAccordion';
 export * from './ModifiableAccordionItem'
 export * from './ModifiableMenu'
 export * from './ModifiableTable'
+export * from './ModifiableCard'

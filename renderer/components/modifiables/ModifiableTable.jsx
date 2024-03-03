@@ -1,14 +1,15 @@
-import { Table, Td, Th, Thead, Tr, TableContainer, TableCaption, Tbody, Tfoot } from "@chakra-ui/react";
+import { Table, Td, Th, Thead, Tr, TableContainer, TableCaption, Tbody } from "@chakra-ui/react";
 
-export const ModifiableTable = ({ w, headers, onclickFunction, headAction, tableCaption, tbody }) => {
+export const ModifiableTable = ({ w, headers, tableCaption, tbody, p }) => {
   
     const tableStyles = {
-        width: w
+        width: w,
+        padding: p
     }
 
     return (
-        <TableContainer  w={ w }>
-            <Table variant='striped' colorScheme='teal'>
+        <TableContainer style={ tableStyles }>
+            <Table colorScheme='teal' size='sm' >
                 <TableCaption>{ tableCaption }</TableCaption>
                 <Thead>
                     <Tr>
@@ -20,8 +21,8 @@ export const ModifiableTable = ({ w, headers, onclickFunction, headAction, table
                     
                     </Tr>
                 </Thead>
-                <Tbody>
-                    { tbody }|
+                <Tbody fontFamily="Roboto">
+                    { tbody }
                 </Tbody>
             </Table>
         </TableContainer>

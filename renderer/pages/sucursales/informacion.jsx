@@ -1,9 +1,8 @@
 import React from 'react'
 import Head from 'next/head'
 import { Heading, VStack, Stack, Box, StackDivider, Text } from '@chakra-ui/react'
-import { ModifiableCard } from '../components/modifiables'
-import useDryCleanAPI from '../hooks/useDryCleanAPI'
-
+import { ModifiableCard } from '../../components/modifiables'
+import useDryCleanAPI from '../../hooks/useDryCleanAPI'
 export default function HomePage() {
 
   const { sucursales } = useDryCleanAPI();
@@ -21,6 +20,7 @@ export default function HomePage() {
         gap="1rem"
       >
         <Heading as="h1"> RopaBella </Heading>
+        <Heading as="h2"></Heading> 
 
         <ModifiableCard 
           w="15rem"

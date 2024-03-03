@@ -1,6 +1,6 @@
 // RootLayout.jsx
 import React, { useState } from 'react';
-import { CustomDrawer } from '../ui'
+import { Drawer } from '../ui'
 import { Grid, GridItem, useBreakpointValue } from '@chakra-ui/react';
 import "@fontsource/roboto"; 
 
@@ -30,10 +30,9 @@ export const RootLayout = ({ children, pageProps }) => {
       w='100vw'
       h="100vh"
       overflowX="hidden"
+      bg="brand.white"
     >
-      <CustomDrawer 
-
-      />
+      <Drawer/>
     
       <GridItem
         as='main'
