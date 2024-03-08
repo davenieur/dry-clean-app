@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 
-const useDryCleanAPI = ()  => {
+export const useDryCleanAPI = ()  => {
     // Setters y getters
     const [sucursales, setSucursales] = useState([]);
     
@@ -59,6 +59,19 @@ const useDryCleanAPI = ()  => {
       setSelectedSucursal(sucursal);
     }
 
+    // dataPrenda = {nombre, tipo_servicio,id_sucursal, precio }
+    const addPrenda = async (dataPrenda) => {
+      try {
+        console.log("addPrenda", dataPrenda)
+
+        const listaPrecios = await window.SucursalesAPI.savePrendaPrecio(dataPrenda)
+        return listaPrecios
+      } catch (error) {
+          console.error('Error al crear la prenda:', error);
+      }
+
+    }
+
     const deletePrenda = (prenda) => {
       console.log("deletePrenda", prenda)
     }
@@ -76,8 +89,8 @@ const useDryCleanAPI = ()  => {
         listaPrecios,
         selectSucursal,
         deletePrenda,
-        updatePrenda
+        updatePrenda,
+        addPrenda
     };
   };
   
-  export default useDryCleanAPI;

@@ -225,7 +225,7 @@ function handlerSavePrendaPrecio(event,dataPrenda){
   VALUES (?,?);`
   const resultInPrenda= db.prepare(queryInsertNewPrenda).run(dataPrenda['nombre'],dataPrenda['tipo_servicio']);
   console.log('Prenda agregada... ',resultInPrenda)
-  id_prenda=resultInPrenda.lastInsertRowid
+  const id_prenda=resultInPrenda.lastInsertRowid
   // Se agrega el nuevo precio activo
   const queryInsertNewLP=`INSERT INTO Listas_Precios (prenda_id,sucursal_id,precio)
   VALUES (last_insert_rowid(),?,?)`
