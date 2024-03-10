@@ -92,11 +92,10 @@ export const useDryCleanAPI = ()  => {
       }
     }
 
-    const updatePrenda = async (dataPrenda, id_sucursal) => {
-      const sucursalId = id_sucursal
-      console.log("updatePrenda", sucursalId, dataPrenda);
+    const updatePrenda = async (dataPrenda) => {
+      console.log("updatePrenda", dataPrenda);
       try {
-        await window.SucursalesAPI.updatePrenda(dataPrenda, id_sucursal);
+        await window.SucursalesAPI.updatePrenda(dataPrenda);
         const listaPrecios = await getListaPrecios(selectedSucursal.id);
         setListaPrecios(listaPrecios);
         setLoadingPrices(false);

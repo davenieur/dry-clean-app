@@ -261,14 +261,13 @@ function handlerDeletePrenda(id_prenda, id_sucursal) {
   return id_prenda;
 }
 
-function handlerUpdatePrenda(dataPrenda, id_sucursal){
-  console.log(dataPrenda);
+function handlerUpdatePrenda(event, dataPrenda){
 
-  const id_prenda = dataPrenda.id_prenda;
+  const { id_prenda, nombre, precio, tipo_servicio, id_sucursal } = dataPrenda;
 
   // Actualizar nombre o tipo_servicio 
   const queryUpdatePrenda = `UPDATE Prenda SET nombre = ?, tipo_servicio = ? WHERE prenda_id = ?;`;
-  const resultUpdatePrenda = db.prepare(queryUpdatePrenda).run(dataPrenda.nombre, dataPrenda.tipo_servicio, id_prenda);
+  const resultUpdatePrenda = db.prepare(queryUpdatePrenda).run(nombre, tipo_servicio, id_prenda);
   console.log('Prenda actualizada... ', resultUpdatePrenda);
 
   const sql = `SELECT prenda_id,sucursal_id,precio from Listas_Precios lp 
@@ -282,7 +281,7 @@ function handlerUpdatePrenda(dataPrenda, id_sucursal){
     if(data != null){
       // si cambio el precio, update and insert new precio
       if(dataPrenda.precio.length > 0){
-        if (data.precio != dataPrenda.precio){ // Actualiza y agrega solo cuando cambia el precio
+        if (data.precio != precio){ // Actualiza y agrega solo cuando cambia el precio
           // se desactiva el precio actual
           const queryUpdate=`UPDATE Listas_Precios 
             SET is_active = FALSE
@@ -292,7 +291,7 @@ function handlerUpdatePrenda(dataPrenda, id_sucursal){
           // Se agrega el nuevo precio activo
           const queryInsertNew=`INSERT INTO Listas_Precios (prenda_id,sucursal_id,precio)
                               VALUES (?,?,?)`
-          const resultIn= db.prepare(queryInsertNew).run(id_prenda,id_sucursal,dataPrenda.precio);
+          const resultIn= db.prepare(queryInsertNew).run(id_prenda,id_sucursal,precio);
           
           console.log('UPDATE price',resultUpd,resultIn)
         }
@@ -305,7 +304,17 @@ function handlerUpdatePrenda(dataPrenda, id_sucursal){
         const resultUpd= db.prepare(queryUpdate).run(id_prenda, id_sucursal);
         console.log('UPDATE to false',resultUpd)
       }
-    }
+    }else{
+        //sino existe, revisar si tiene precio
+      // si tiene precio -> insert precio
+      if(precio.length > 0){
+        
+        const queryInsert=`INSERT INTO Listas_Precios (prenda_id,sucursal_id,precio)
+                      VALUES (?,?,?)`
+        const result= db.prepare(queryInsert).run(id_prenda,id_sucursal,precio);
+        
+      }
+    }  
 
 
 

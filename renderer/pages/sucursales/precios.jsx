@@ -80,17 +80,15 @@ export default function HomePage() {
   }
 
   const onUpdatePrenda = (id) => {
-    const id_sucursal = selectedSucursal.id;
-
     const dataPrenda = {
       id_prenda: id,
       nombre: nombre,
       precio: precio,
       tipo_servicio: tipo_servicio,
-      id_sucursal: id_sucursal
+      id_sucursal: selectedSucursal.id
     }
 
-    updatePrenda(dataPrenda, id_sucursal)
+    updatePrenda(dataPrenda)
 
     Swal.fire({
       title: "Prenda actualizada",
