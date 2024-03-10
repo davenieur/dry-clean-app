@@ -44,6 +44,15 @@ export const useDryCleanAPI = ()  => {
       }
     }
 
+    const getListaNotas = async (id) => {
+      try {
+        const listaPrecios = await window.SucursalesAPI.getListPrecios(id)
+        return listaPrecios
+      } catch (error) {
+          console.error('Error al obtener la lista de precios:', error);
+      }
+    }
+
     // Obtenemos la lista de precios
     useEffect(() => {
       const fetchListaPrecios = async () => {
@@ -59,7 +68,6 @@ export const useDryCleanAPI = ()  => {
       setSelectedSucursal(sucursal);
     }
 
-    // dataPrenda = {nombre, tipo_servicio,id_sucursal, precio }
     const addPrenda = async (dataPrenda) => {
       try {
         await window.SucursalesAPI.savePrendaPrecio(dataPrenda);
@@ -80,7 +88,7 @@ export const useDryCleanAPI = ()  => {
         setListaPrecios(listaPrecios);
         setLoadingPrices(false);
       } catch (error) {
-          console.error('Error al crear la prenda:', error);
+          console.error('Error al eliminar la prenda:', error);
       }
     }
 

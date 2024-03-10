@@ -1,5 +1,3 @@
-
-
 const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path'); 
 
@@ -7,10 +5,10 @@ var crypto = require('crypto')
 
 
 
-const dbmgr = require("./helpers/database.js")
+const dbmgr = require("./database.js")
 const db = dbmgr.db
 
-const {printTicket} = require("./helpers/Tickets.js")
+const {printTicket} = require('../main/helpers/Tickets.js')
 
 //GLOBAL Windows
 let win;
@@ -19,41 +17,33 @@ let winlogin;
 
 app.whenReady().then(createWindow)
 
-const isProd = process.env.NODE_ENV === 'production'
-
-
 // ------------
 //    WINDOWS
 // ------------
 async function createWindow () {
-  win = new BrowserWindow({
-   
-   fullscreen:true,
-   maximize: true,
-   titleBarStyle: 'hidden',
-   titleBarOverlay: true,
-   webPreferences: {
-     //  nodeIntegration: true,
-    // contextIsolation:true,
-     devTools:true,
-     
-   preload:path.join(__dirname, 'preload-index.js')
-   }
+   win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    // fullscreen:true,
+    // maximize: true,
+    // titleBarStyle: 'hidden',
+    // titleBarOverlay: true,
+    webPreferences: {
+      //  nodeIntegration: true,
+     // contextIsolation:true,
+      devTools:true,
+      
+    preload:path.join(__dirname, 'preload-index.js')
+    }
 
- })
+  })
 
   //win.loadFile(path.join(__dirname,'../FrontEnd/pages/notas/ver_notas.html'))
   // win.loadFile(path.join(__dirname,'../FrontEnd/index.html'))
-  win.maximize(true)
+  // win.maximize(true)
   win.webContents.openDevTools();
   
-  if (isProd) {
-    await win.loadURL('app://./home')
-  } else {
-    const port = process.argv[2]
-    await win.loadURL(`http://localhost:${port}/home`)
-    win.webContents.openDevTools()
-  }
+
 }
 
 function loginWindow () {
@@ -69,7 +59,7 @@ function loginWindow () {
    }
  })
 
-//  winlogin.loadFile(path.join(__dirname,'../login.html'));
+ winlogin.loadFile(path.join(__dirname,'../login.html'));
  winlogin.webContents.openDevTools();
 
 }
@@ -226,7 +216,7 @@ function handlerSavePrendaPrecio(event,dataPrenda){
   VALUES (?,?);`
   const resultInPrenda= db.prepare(queryInsertNewPrenda).run(dataPrenda['nombre'],dataPrenda['tipo_servicio']);
   console.log('Prenda agregada... ',resultInPrenda)
-  const id_prenda=resultInPrenda.lastInsertRowid
+  id_prenda=resultInPrenda.lastInsertRowid
   // Se agrega el nuevo precio activo
   const queryInsertNewLP=`INSERT INTO Listas_Precios (prenda_id,sucursal_id,precio)
   VALUES (last_insert_rowid(),?,?)`
@@ -236,82 +226,40 @@ function handlerSavePrendaPrecio(event,dataPrenda){
   return id_prenda
 }
 
-function handlerDeletePrenda(id_prenda, id_sucursal) {
+function handlerUpdatePrenda(event,dataPrenda){
+    console.log(dataPrenda);
+
+    const id_prenda = dataPrenda.id_prenda;
+
+    const queryUpdatePrenda = `UPDATE Prenda SET nombre = ?, tipo_servicio = ? WHERE id = ?;`;
+    const resultUpdatePrenda = db.prepare(queryUpdatePrenda).run(dataPrenda.nombre, dataPrenda.tipo_servicio, id_prenda);
+    console.log('Prenda actualizada... ', resultUpdatePrenda);
+
+    // Se actualiza el precio activo
+    const queryUpdateLP = `UPDATE Listas_Precios SET precio = ? WHERE prenda_id = ? AND sucursal_id = ?;`;
+    const resultUpdateLP = db.prepare(queryUpdateLP).run(dataPrenda.precio, id_prenda, dataPrenda.id_sucursal);
+    console.log('Precio actualizado en LP... ', resultUpdateLP);
+
+    return id_prenda;
+}
+
+function handlerDeletePrenda(event, id_prenda) {
   // Suponiendo que `db` está definido en algún lugar accesible
   // const db = new Database(path.join(__dirname, '../../db/dry_clean_six_stars.db'));
 
-  const queryUpdate=`UPDATE Listas_Precios 
-    SET is_active = FALSE
-    WHERE prenda_id = ? and sucursal_id = ?  `
+  // Eliminar la prenda de la tabla Prenda
+  const queryDeletePrenda = `DELETE FROM Prenda WHERE prenda_id = ?;`;
+  const resultDeletePrenda = db.prepare(queryDeletePrenda).run(id_prenda);
+  console.log('Prenda eliminada...', resultDeletePrenda);
 
-  const resultUpd= db.prepare(queryUpdate).run(id_prenda,id_sucursal);
-  
-  console.log('Prenda eliminada...', resultUpd);
+  // Eliminar el precio de la prenda de la tabla Listas_Precios
+  const queryDeleteLP = `DELETE FROM Listas_Precios WHERE prenda_id = ?;`;
+  const resultDeleteLP = db.prepare(queryDeleteLP).run(id_prenda);
+  console.log('Precio de prenda eliminado de LP...', resultDeleteLP);
 
-  // // Eliminar los precios de la prenda de la tabla Listas_Precios
-  // const queryDeleteLP = `DELETE FROM Listas_Precios WHERE prenda_id = ?;`;
-  // const resultDeleteLP = db.prepare(queryDeleteLP).run(id_prenda);
-  // console.log('Precios de prenda eliminados de LP...', resultDeleteLP);
-
-  // // Eliminar la prenda de la tabla Prenda
-  // const queryDeletePrenda = `DELETE FROM Prenda WHERE prenda_id = ?;`;
-  // const resultDeletePrenda = db.prepare(queryDeletePrenda).run(id_prenda);
-  // console.log('Prenda eliminada...', resultDeletePrenda);
-
+  // Devolver el ID de la prenda eliminada
   return id_prenda;
 }
-
-function handlerUpdatePrenda(dataPrenda, id_sucursal){
-  console.log(dataPrenda);
-
-  const id_prenda = dataPrenda.id_prenda;
-
-  // Actualizar nombre o tipo_servicio 
-  const queryUpdatePrenda = `UPDATE Prenda SET nombre = ?, tipo_servicio = ? WHERE prenda_id = ?;`;
-  const resultUpdatePrenda = db.prepare(queryUpdatePrenda).run(dataPrenda.nombre, dataPrenda.tipo_servicio, id_prenda);
-  console.log('Prenda actualizada... ', resultUpdatePrenda);
-
-  const sql = `SELECT prenda_id,sucursal_id,precio from Listas_Precios lp 
-                WHERE prenda_id = ? and sucursal_id =? and is_active is TRUE`; 
-
-  const data=db.prepare(sql).get([id_prenda,id_sucursal]);
-
-  console.log(data)
-    
-    // si existe, revisar si es un precio lleno o vacio
-    if(data != null){
-      // si cambio el precio, update and insert new precio
-      if(dataPrenda.precio.length > 0){
-        if (data.precio != dataPrenda.precio){ // Actualiza y agrega solo cuando cambia el precio
-          // se desactiva el precio actual
-          const queryUpdate=`UPDATE Listas_Precios 
-            SET is_active = FALSE
-            WHERE prenda_id = ? and sucursal_id = ?  `
-          const resultUpd= db.prepare(queryUpdate).run(id_prenda,id_sucursal);
-          
-          // Se agrega el nuevo precio activo
-          const queryInsertNew=`INSERT INTO Listas_Precios (prenda_id,sucursal_id,precio)
-                              VALUES (?,?,?)`
-          const resultIn= db.prepare(queryInsertNew).run(id_prenda,id_sucursal,dataPrenda.precio);
-          
-          console.log('UPDATE price',resultUpd,resultIn)
-        }
-        
-      }else{
-        // si no hay precio, desactivar solamente
-        const queryUpdate=`UPDATE Listas_Precios 
-                    SET is_active = FALSE
-                    WHERE prenda_id = ? and sucursal_id = ?  `
-        const resultUpd= db.prepare(queryUpdate).run(id_prenda, id_sucursal);
-        console.log('UPDATE to false',resultUpd)
-      }
-    }
-
-
-
-  return id_prenda;
-}
-
 
 
 function handlerSaveNota(event,dataNota){

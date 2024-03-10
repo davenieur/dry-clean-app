@@ -20,6 +20,7 @@ export default function HomePage() {
   const { sucursales, selectedSucursal, listaPrecios, addPrenda, selectSucursal, deletePrenda, updatePrenda } = useDryCleanAPI()
 
   const { nombre, precio, tipo_servicio, onInputChange: onAddPrendaInputChange } = useForm( prendaAddFormFields );
+
   
   const fields = [
     {
@@ -68,8 +69,14 @@ export default function HomePage() {
     
   }
 
-  const onDeletePrenda = (element) => {
-    deletePrenda( element )
+  const onDeletePrenda = (id_prenda) => {
+    deletePrenda(id_prenda, selectedSucursal.id)
+
+    Swal.fire({
+      title: "Prenda eliminada",
+      text: `La prenda ${ nombre } ha sido eliminada correctamente.`,
+      icon: "success"
+    });
   }
 
   const onUpdatePrenda = (id) => {
