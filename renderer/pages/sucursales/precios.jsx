@@ -3,13 +3,13 @@ import Head from 'next/head'
 
 import { Heading, MenuItem, Text, VStack, Divider, Td, Tr, Button, ButtonGroup, HStack, useDisclosure  } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
-import { ModifiableForm, ModifiableMenu, ModifiableModal, ModifiableTable } from '../../components/modifiables'
-import { Spinner } from '@chakra-ui/react'
-import { MdBuild , MdCall } from "react-icons/md"
+import { ModifiableAlert, ModifiableForm, ModifiableMenu, ModifiableModal, ModifiableTable } from '../../components/modifiables'
+import { MdBuild } from "react-icons/md"
 import { FaTrash } from 'react-icons/fa'
-import { AddIcon } from '@chakra-ui/icons'
+import { AddIcon, ArrowDownIcon } from '@chakra-ui/icons'
+import Swal from 'sweetalert2';
 
-const prendaFormFields = {
+const prendaAddFormFields = {
   nombre: '',
   precio: '',
   tipo_servicio: ''
@@ -19,10 +19,8 @@ export default function HomePage() {
 
   const { sucursales, selectedSucursal, listaPrecios, addPrenda, selectSucursal, deletePrenda, updatePrenda } = useDryCleanAPI()
 
-  const { isOpen, onOpen, onClose} = useDisclosure();
-
-  const { nombre, precio, tipo_servicio, onInputChange: onAddPrendaInputChange } = useForm( prendaFormFields );
-
+  const { nombre, precio, tipo_servicio, onInputChange: onAddPrendaInputChange } = useForm( prendaAddFormFields );
+  
   const fields = [
     {
       fieldName: "nombre",
@@ -59,9 +57,39 @@ export default function HomePage() {
       tipo_servicio: tipo_servicio,
       id_sucursal: id_sucursal
     }
-
+    
     addPrenda(dataPrenda)
     
+    Swal.fire({
+      title: "Prenda agregada",
+      text: `La prenda ${ nombre } ha sido agregada a la sucursal ${ selectedSucursal.nombre }`,
+      icon: "success"
+    });
+    
+  }
+
+  const onDeletePrenda = (element) => {
+    deletePrenda( element )
+  }
+
+  const onUpdatePrenda = (id) => {
+    const id_sucursal = selectedSucursal.id;
+
+    const dataPrenda = {
+      id_prenda: id,
+      nombre: nombre,
+      precio: precio,
+      tipo_servicio: tipo_servicio,
+      id_sucursal: id_sucursal
+    }
+
+    updatePrenda(dataPrenda, id_sucursal)
+
+    Swal.fire({
+      title: "Prenda actualizada",
+      text: `La prenda ${ nombre } ha sido actualizada`,
+      icon: "success"
+    });
   }
 
 
@@ -75,6 +103,7 @@ export default function HomePage() {
         align="flex-start"
         justify="flex-start"
         w="100%"
+        gap="1rem"
       >
         <Heading as="h1"> RopaBella </Heading>
         <Heading as="h2" fontSize="xl" color="gray"> Lista de precios </Heading>
@@ -84,8 +113,12 @@ export default function HomePage() {
         >
           {/* Selección de sucursal */}
           <ModifiableMenu 
-            iconUrl='https://img.icons8.com/ios-filled/30/F3F3F3/down--v1.png'
+            icon={ <ArrowDownIcon color="brand.white"/>}
             nombre={ selectedSucursal.nombre }
+            bg="brand.secondary"
+            color="brand.white"
+            hoverBg="brand.secondary"
+            expandedBg="brand.tertiary"
             menuList={
               <VStack
                 align="center"
@@ -112,12 +145,12 @@ export default function HomePage() {
           /> 
           
           {/* Agregar prenda */}
-          <Button leftIcon={<AddIcon />} colorScheme='green' fontSize="sm" onClick={ onOpen }>Agregar prenda</Button>
-
           <ModifiableModal 
-            isOpen={ isOpen }
-            onClose={ onClose }
+            leftIcon={<AddIcon />}
+            colorScheme='green'
+            fontSize="sm"
             modalHeader="Agregar prenda"
+            buttonText={"Agregar prenda"}
             modalBody={    
               <ModifiableForm 
                 fields={ fields }
@@ -129,41 +162,91 @@ export default function HomePage() {
 
         </HStack>
 
+        <VStack align="center" justify="center">
+          {/* Tabla de los precios */}
+          <ModifiableTable 
+            p="1rem"
+            w="auto"
+            headers={[ "Id", "Nombre", "Servicio", "Precio", "Acciones"]}
+            tbody={ 
+              <>
+                {
+                  listaPrecios.map(( element, index ) => {
+
+                    const updateFields = [
+                      {
+                        fieldName: "nombre",
+                        type: "text",
+                        value: nombre,
+                        label: "Nombre",
+                        helper: "Ingresa el nombre de la prenda",
+                        error: "Nombre de la prenda requerido"
+                      },
+                      {
+                        fieldName: "precio",
+                        type: "number",
+                        value: precio,
+                        label: "Precio",
+                        helper: "Ingresa el precio de la prenda",
+                        error: "Precio requerido"
+                      },
+                      {
+                        fieldName: "tipo_servicio",
+                        type: "menu",
+                        value: tipo_servicio,
+                        label: "Tipo de servicio",
+                        helper: "Selecciona el tipo de servicio",
+                        error: "Tipo de servicio requerido",
+                        options: ["Tintorería", "Planchado", "Lavado", "Teñido", "Pintada 1 color"]
+                      }
+                    ]
+                    
+                    return(
+                      <Tr key={ index }>
+                          <Td>{ element.id }</Td>
+                          <Td>{ element.nombre }</Td>
+                          <Td>{ element.servicio }</Td>
+                          <Td>${ element.precio || '0'  } </Td>
+                          <Td> 
+                            <ButtonGroup  spacing='.5rem'>
+                              {/* Eliminar prenda */}
+                              <ModifiableAlert 
+                                leftIcon={<FaTrash />}
+                                fontSize="sm"
+                                buttonText="Eliminar"
+                                dialogBody={`¿Eliminar ${ element.nombre }?`} 
+                                onClick={ onDeletePrenda } 
+                                param = { element.id }
+                              />
+
+                              {/* Actualizar prenda */}
+                              <ModifiableModal 
+                                leftIcon={<MdBuild />}
+                                colorScheme='blue'
+                                buttonText = "Editar"
+                                fontSize="sm"
+                                modalHeader={ `Editar ${ element.nombre }`}
+                                modalBody={    
+                                  <ModifiableForm 
+                                    fields={ updateFields }
+                                    onChange={ onAddPrendaInputChange }
+                                  />
+                                }
+                                onClick={() => onUpdatePrenda(element.id) }
+                              />
+
+                            </ButtonGroup>
+                          </Td>
+                      </Tr>
+                        
+                    )
+                  })
+                }
+              </>
+            }
+          />
+        </VStack>
         
-
-        <ModifiableTable 
-          p="1rem"
-          w="100%"
-          headers={[ "Id", "Nombre", "Servicio", "Precio", "Acciones"]}
-          tbody={ 
-            <>
-              {
-                listaPrecios.map(( element, index ) => {
-                  const { id, nombre, servicio, precio } = element
-
-                  return(
-                    <Tr key={ index }>
-                        <Td>{ id }</Td>
-                        <Td>{ nombre }</Td>
-                        <Td>{ servicio }</Td>
-                        <Td>${ precio || '0' } </Td>
-                        <Td> 
-                          <ButtonGroup variant='outline' spacing='1'>
-                            <Button leftIcon={<FaTrash />} colorScheme='red' fontSize="sm" onClick={() => deletePrenda( element )}>Eliminar</Button>
-                            <Button leftIcon={<MdBuild />} colorScheme='blue' variant='solid' fontSize="sm" onClick={() => updatePrenda(selectedSucursal, element)}>
-                              Editar
-                            </Button>
-                          </ButtonGroup>
-                        </Td>
-                    </Tr>
-                      
-                  )
-                })
-              }
-            </>
-          }
-        />
-
       </VStack>
     </>
   )

@@ -24,6 +24,7 @@
     "escpos-usb": "^3.0.0-alpha.4",
     "framer-motion": "^11.0.5",
     "react-icons": "^5.0.1",
+    "sweetalert2": "^11.10.6",
     "usb": "^2.11.0"
   },
   "devDependencies": {

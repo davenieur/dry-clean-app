@@ -62,23 +62,39 @@ export const useDryCleanAPI = ()  => {
     // dataPrenda = {nombre, tipo_servicio,id_sucursal, precio }
     const addPrenda = async (dataPrenda) => {
       try {
-        console.log("addPrenda", dataPrenda)
-
-        const listaPrecios = await window.SucursalesAPI.savePrendaPrecio(dataPrenda)
-        return listaPrecios
+        await window.SucursalesAPI.savePrendaPrecio(dataPrenda);
+        const listaPrecios = await getListaPrecios(selectedSucursal.id);
+        setListaPrecios(listaPrecios);
+        setLoadingPrices(false);
       } catch (error) {
           console.error('Error al crear la prenda:', error);
       }
 
     }
 
-    const deletePrenda = (prenda) => {
-      console.log("deletePrenda", prenda)
+    const deletePrenda = async (prenda_id) => {
+      console.log("deletePrenda", prenda_id)
+      try {
+        await window.SucursalesAPI.deletePrenda(prenda_id);
+        const listaPrecios = await getListaPrecios(selectedSucursal.id);
+        setListaPrecios(listaPrecios);
+        setLoadingPrices(false);
+      } catch (error) {
+          console.error('Error al crear la prenda:', error);
+      }
     }
 
-    const updatePrenda = (sucursal, prenda) => {
-      const sucursalId = sucursal.id
-      console.log("updatePrenda", sucursalId, prenda)
+    const updatePrenda = async (dataPrenda, id_sucursal) => {
+      const sucursalId = id_sucursal
+      console.log("updatePrenda", sucursalId, dataPrenda);
+      try {
+        await window.SucursalesAPI.updatePrenda(dataPrenda, id_sucursal);
+        const listaPrecios = await getListaPrecios(selectedSucursal.id);
+        setListaPrecios(listaPrecios);
+        setLoadingPrices(false);
+      } catch (error) {
+          console.error('Error al actualizar la prenda:', error);
+      }
     }
 
     return {
@@ -86,7 +102,7 @@ export const useDryCleanAPI = ()  => {
         loadingPrices,
         loadingSucursales,
         selectedSucursal,
-        listaPrecios,
+        listaPrecios: listaPrecios || [],        
         selectSucursal,
         deletePrenda,
         updatePrenda,

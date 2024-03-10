@@ -100,7 +100,8 @@ ipcMain.handle('Sucursal:get_list', handleSucursalGetList)
 ipcMain.handle('Sucursal:get_list_precios', handleSucursalGetListPrecios)
 ipcMain.handle('Sucursal:update_list_precios', handleSucursalUpdateListPrecios)
 ipcMain.handle('Sucursal:save_prenda', handlerSavePrendaPrecio)
-
+ipcMain.handle('Sucursal:delete_prenda', handlerDeletePrenda)
+ipcMain.handle('Sucursal:update_prenda', handlerUpdatePrenda)
 ipcMain.handle('Notas:save_nota', handlerSaveNota)
 ipcMain.handle('Notas:get_list_notas', handlerGetListNotas)
 ipcMain.handle('Notas:imprimir_ticket', handlerPrintTicket)
@@ -234,6 +235,42 @@ function handlerSavePrendaPrecio(event,dataPrenda){
   console.log('Prenda agregada en LP... ',resultInLP)
   return id_prenda
 }
+
+function handlerDeletePrenda(event, id_prenda) {
+  // Suponiendo que `db` está definido en algún lugar accesible
+  // const db = new Database(path.join(__dirname, '../../db/dry_clean_six_stars.db'));
+
+  // Eliminar los precios de la prenda de la tabla Listas_Precios
+  const queryDeleteLP = `DELETE FROM Listas_Precios WHERE prenda_id = ?;`;
+  const resultDeleteLP = db.prepare(queryDeleteLP).run(id_prenda);
+  console.log('Precios de prenda eliminados de LP...', resultDeleteLP);
+
+  // Eliminar la prenda de la tabla Prenda
+  const queryDeletePrenda = `DELETE FROM Prenda WHERE prenda_id = ?;`;
+  const resultDeletePrenda = db.prepare(queryDeletePrenda).run(id_prenda);
+  console.log('Prenda eliminada...', resultDeletePrenda);
+
+  return id_prenda;
+}
+
+function handlerUpdatePrenda(event,dataPrenda){
+  console.log(dataPrenda);
+
+  const id_prenda = dataPrenda.id_prenda;
+
+  const queryUpdatePrenda = `UPDATE Prenda SET nombre = ?, tipo_servicio = ? WHERE prenda_id = ?;`;
+  const resultUpdatePrenda = db.prepare(queryUpdatePrenda).run(dataPrenda.nombre, dataPrenda.tipo_servicio, id_prenda);
+  console.log('Prenda actualizada... ', resultUpdatePrenda);
+
+  // Se actualiza el precio activo
+  const queryUpdateLP = `UPDATE Listas_Precios SET precio = ? WHERE prenda_id = ? AND sucursal_id = ?;`;
+  const resultUpdateLP = db.prepare(queryUpdateLP).run(dataPrenda.precio, id_prenda, dataPrenda.id_sucursal);
+  console.log('Precio actualizado en LP... ', resultUpdateLP);
+
+  return id_prenda;
+}
+
+
 
 function handlerSaveNota(event,dataNota){
   

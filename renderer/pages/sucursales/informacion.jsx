@@ -2,7 +2,7 @@ import React from 'react'
 import Head from 'next/head'
 import { Heading, VStack, Stack, Box, StackDivider, Text } from '@chakra-ui/react'
 import { ModifiableCard } from '../../components/modifiables'
-import useDryCleanAPI from '../../hooks/useDryCleanAPI'
+import { useDryCleanAPI } from '../../hooks'
 export default function HomePage() {
 
   const { sucursales } = useDryCleanAPI();
