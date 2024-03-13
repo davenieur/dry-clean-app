@@ -1,13 +1,13 @@
 import React from 'react'
 import Head from 'next/head'
 
-import { Heading, MenuItem, Text, VStack, Divider, Td, Tr, Button, ButtonGroup, HStack, useDisclosure  } from '@chakra-ui/react'
+import { Heading, MenuItem, Text, VStack, Divider, HStack, useDisclosure  } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
-import { ModifiableAlert, ModifiableForm, ModifiableMenu, ModifiableModal, ModifiableTable } from '../../components/modifiables'
-import { MdBuild } from "react-icons/md"
-import { FaTrash } from 'react-icons/fa'
+import { ModifiableForm, ModifiableMenu, ModifiableModal, ModifiableTable } from '../../components/modifiables'
+
 import { AddIcon, ArrowDownIcon } from '@chakra-ui/icons'
 import Swal from 'sweetalert2';
+import { ModifiableTableRow } from '../../components/modifiables/ModifiableTableRow'
 
 const prendaAddFormFields = {
   nombre: '',
@@ -17,7 +17,7 @@ const prendaAddFormFields = {
 
 export default function HomePage() {
 
-  const { sucursales, selectedSucursal, listaPrecios, addPrenda, selectSucursal, deletePrenda, updatePrenda } = useDryCleanAPI()
+  const { sucursales, selectedSucursal, deletePrenda, listaPrecios, addOrUpdatePrenda, selectSucursal } = useDryCleanAPI()
 
   const { nombre, precio, tipo_servicio, onInputChange: onAddPrendaInputChange } = useForm( prendaAddFormFields );
 
@@ -46,7 +46,7 @@ export default function HomePage() {
       label: "Tipo de servicio",
       helper: "Selecciona el tipo de servicio",
       error: "Tipo de servicio requerido",
-      options: ["Tintorería", "Planchado", "Lavado", "Teñido", "Pintada 1 color"]
+      options: ["Tintoreria", "Planchado", "Lavado", "Teñido", "Pintada 1 color"]
     }
   ]
 
@@ -59,7 +59,7 @@ export default function HomePage() {
       id_sucursal: id_sucursal
     }
     
-    addPrenda(dataPrenda)
+    addOrUpdatePrenda(dataPrenda)
     
     Swal.fire({
       title: "Prenda agregada",
@@ -69,33 +69,7 @@ export default function HomePage() {
     
   }
 
-  const onDeletePrenda = (id_prenda) => {
-    deletePrenda(id_prenda, selectedSucursal.id)
-
-    Swal.fire({
-      title: "Prenda eliminada",
-      text: `La prenda ${ nombre } ha sido eliminada correctamente.`,
-      icon: "success"
-    });
-  }
-
-  const onUpdatePrenda = (id) => {
-    const dataPrenda = {
-      id_prenda: id,
-      nombre: nombre,
-      precio: precio,
-      tipo_servicio: tipo_servicio,
-      id_sucursal: selectedSucursal.id
-    }
-
-    updatePrenda(dataPrenda)
-
-    Swal.fire({
-      title: "Prenda actualizada",
-      text: `La prenda ${ nombre } ha sido actualizada`,
-      icon: "success"
-    });
-  }
+  
 
 
   return (
@@ -177,72 +151,18 @@ export default function HomePage() {
               <>
                 {
                   listaPrecios.map(( element, index ) => {
-
-                    const updateFields = [
-                      {
-                        fieldName: "nombre",
-                        type: "text",
-                        value: nombre,
-                        label: "Nombre",
-                        helper: "Ingresa el nombre de la prenda",
-                        error: "Nombre de la prenda requerido"
-                      },
-                      {
-                        fieldName: "precio",
-                        type: "number",
-                        value: precio,
-                        label: "Precio",
-                        helper: "Ingresa el precio de la prenda",
-                        error: "Precio requerido"
-                      },
-                      {
-                        fieldName: "tipo_servicio",
-                        type: "menu",
-                        value: tipo_servicio,
-                        label: "Tipo de servicio",
-                        helper: "Selecciona el tipo de servicio",
-                        error: "Tipo de servicio requerido",
-                        options: ["Tintorería", "Planchado", "Lavado", "Teñido", "Pintada 1 color"]
-                      }
-                    ]
-                    
                     return(
-                      <Tr key={ index }>
-                          <Td>{ element.id }</Td>
-                          <Td>{ element.nombre }</Td>
-                          <Td>{ element.servicio }</Td>
-                          <Td>${ element.precio || '0'  } </Td>
-                          <Td> 
-                            <ButtonGroup  spacing='.5rem'>
-                              {/* Eliminar prenda */}
-                              <ModifiableAlert 
-                                leftIcon={<FaTrash />}
-                                fontSize="sm"
-                                buttonText="Eliminar"
-                                dialogBody={`¿Eliminar ${ element.nombre }?`} 
-                                onClick={ onDeletePrenda } 
-                                param = { element.id }
-                              />
-
-                              {/* Actualizar prenda */}
-                              <ModifiableModal 
-                                leftIcon={<MdBuild />}
-                                colorScheme='blue'
-                                buttonText = "Editar"
-                                fontSize="sm"
-                                modalHeader={ `Editar ${ element.nombre }`}
-                                modalBody={    
-                                  <ModifiableForm 
-                                    fields={ updateFields }
-                                    onChange={ onAddPrendaInputChange }
-                                  />
-                                }
-                                onClick={() => onUpdatePrenda(element.id) }
-                              />
-
-                            </ButtonGroup>
-                          </Td>
-                      </Tr>
+                      
+                      <ModifiableTableRow 
+                        key={ index }
+                        id={ element.id }
+                        prendaNombre={ element.nombre }
+                        prendaPrecio={ element.precio }
+                        prendaServicio={ element.servicio }
+                        deletePrenda={ deletePrenda }
+                        selectedSucursal={ selectedSucursal }
+                        addOrUpdatePrenda={ addOrUpdatePrenda }
+                      />
                         
                     )
                   })

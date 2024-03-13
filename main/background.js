@@ -236,46 +236,52 @@ function handlerSavePrendaPrecio(event,dataPrenda){
   return id_prenda
 }
 
-function handlerDeletePrenda(id_prenda, id_sucursal) {
-  // Suponiendo que `db` está definido en algún lugar accesible
-  // const db = new Database(path.join(__dirname, '../../db/dry_clean_six_stars.db'));
+function handlerDeletePrenda(event, dataPrenda) {
+  const { id_prenda } = dataPrenda
 
-  const queryUpdate=`UPDATE Listas_Precios 
-    SET is_active = FALSE
-    WHERE prenda_id = ? and sucursal_id = ?  `
-
-  const resultUpd= db.prepare(queryUpdate).run(id_prenda,id_sucursal);
+  try {
+    // Verificar que los IDs no sean undefined
+    if (id_prenda === undefined ) {
+      throw new Error('El id de la prenda no puede ser undefined.');
+    }
   
-  console.log('Prenda eliminada...', resultUpd);
+     // Eliminar los precios de la prenda de la tabla Listas_Precios
+    const queryDeleteLP = `DELETE FROM Listas_Precios WHERE prenda_id = ?;`;
+    const resultDeleteLP = db.prepare(queryDeleteLP).run(id_prenda);
+    console.log('Precios de prenda eliminados de LP...', resultDeleteLP);
 
-  // // Eliminar los precios de la prenda de la tabla Listas_Precios
-  // const queryDeleteLP = `DELETE FROM Listas_Precios WHERE prenda_id = ?;`;
-  // const resultDeleteLP = db.prepare(queryDeleteLP).run(id_prenda);
-  // console.log('Precios de prenda eliminados de LP...', resultDeleteLP);
+    // Eliminar la prenda de la tabla Prenda
+    const queryDeletePrenda = `DELETE FROM Prenda WHERE prenda_id = ?;`;
+    const resultDeletePrenda = db.prepare(queryDeletePrenda).run(id_prenda);
+    console.log('Prenda eliminada...', resultDeletePrenda);
 
-  // // Eliminar la prenda de la tabla Prenda
-  // const queryDeletePrenda = `DELETE FROM Prenda WHERE prenda_id = ?;`;
-  // const resultDeletePrenda = db.prepare(queryDeletePrenda).run(id_prenda);
-  // console.log('Prenda eliminada...', resultDeletePrenda);
-
-  return id_prenda;
+  } catch (error) {
+    throw new Error(error);
+  }
+  
 }
 
 function handlerUpdatePrenda(event, dataPrenda){
 
   const { id_prenda, nombre, precio, tipo_servicio, id_sucursal } = dataPrenda;
 
-  // Actualizar nombre o tipo_servicio 
-  const queryUpdatePrenda = `UPDATE Prenda SET nombre = ?, tipo_servicio = ? WHERE prenda_id = ?;`;
-  const resultUpdatePrenda = db.prepare(queryUpdatePrenda).run(nombre, tipo_servicio, id_prenda);
-  console.log('Prenda actualizada... ', resultUpdatePrenda);
+  try {
+    // Verificar que los IDs no sean undefined
+    if (id_prenda === undefined || id_sucursal === undefined) {
+      throw new Error('El id de la prenda o de la sucursal no puede ser undefined.');
+    }
+  
+    // Actualizar nombre o tipo_servicio 
+    const queryUpdatePrenda = `UPDATE Prenda SET nombre = ?, tipo_servicio = ? WHERE prenda_id = ?;`;
+    const resultUpdatePrenda = db.prepare(queryUpdatePrenda).run(nombre, tipo_servicio, id_prenda);
+    console.log('Prenda actualizada... ', resultUpdatePrenda);
 
-  const sql = `SELECT prenda_id,sucursal_id,precio from Listas_Precios lp 
-                WHERE prenda_id = ? and sucursal_id =? and is_active is TRUE`; 
+    const sql = `SELECT prenda_id,sucursal_id,precio from Listas_Precios lp 
+                  WHERE prenda_id = ? and sucursal_id =? and is_active is TRUE`; 
 
-  const data=db.prepare(sql).get([id_prenda,id_sucursal]);
+    const data=db.prepare(sql).get([id_prenda,id_sucursal]);
 
-  console.log(data)
+    console.log(data)
     
     // si existe, revisar si es un precio lleno o vacio
     if(data != null){
@@ -305,20 +311,20 @@ function handlerUpdatePrenda(event, dataPrenda){
         console.log('UPDATE to false',resultUpd)
       }
     }else{
-        //sino existe, revisar si tiene precio
+      //sino existe, revisar si tiene precio
       // si tiene precio -> insert precio
       if(precio.length > 0){
-        
-        const queryInsert=`INSERT INTO Listas_Precios (prenda_id,sucursal_id,precio)
-                      VALUES (?,?,?)`
-        const result= db.prepare(queryInsert).run(id_prenda,id_sucursal,precio);
-        
+       
+       const queryInsert=`INSERT INTO Listas_Precios (prenda_id,sucursal_id,precio)
+                     VALUES (?,?,?)`
+       const result= db.prepare(queryInsert).run(id_prenda,id_sucursal,precio);
+       
       }
-    }  
+    }
 
-
-
-  return id_prenda;
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 

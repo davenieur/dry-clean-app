@@ -1,10 +1,8 @@
-import { RadioGroup, Stack, Radio } from "@chakra-ui/react"
-import { MdArrowDropDown } from "react-icons/md"
+import { RadioGroup, Stack, Radio, useRadioGroup } from "@chakra-ui/react"
 
-export const ModifiableSelectMenu = ({ options = [], name }) => {
-
+export const ModifiableSelectMenu = ({ options = [], name, value }) => {
   return (
-    <RadioGroup name={ name } >
+    <RadioGroup name={ name } defaultValue={ value }>
       <Stack direction='column' >
         {
             options.map(( option, index ) => {

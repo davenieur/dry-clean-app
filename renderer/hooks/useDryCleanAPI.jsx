@@ -1,119 +1,99 @@
 import { useState, useEffect } from 'react';
 
-
 export const useDryCleanAPI = ()  => {
     // Setters y getters
     const [sucursales, setSucursales] = useState([]);
-    
-    const [loadingSucursales, setLoadingSucursales] = useState(true);
-
-    const [loadingPrices, setLoadingPrices] = useState(true);
-
     const [selectedSucursal, setSelectedSucursal] = useState({});
-
-    const [listaPrecios, setListaPrecios] = useState([])
-    
+    const [listaPrecios, setListaPrecios] = useState([]);
 
     const getSucursales = async () => {
         try {
             const sucursales = await window.SucursalesAPI.getSucursales();
-            return sucursales
+            return sucursales;
         } catch (error) {
             console.error('Error al obtener las sucursales:', error);
         }
     };
     
-    // Obtenemos la lista de sucursales
+    const getListaPrecios = async (id) => {
+        try {
+            const listaPrecios = await window.SucursalesAPI.getListPrecios(id);
+            return listaPrecios;
+        } catch (error) {
+            console.error('Error al obtener la lista de precios:', error);
+        }
+    }
+
     useEffect(() => {
-      const fetchSucursales = async () => {
-        const sucursales = await getSucursales();
-        setSucursales(sucursales);
-        setSelectedSucursal(sucursales[0]);
-        setLoadingSucursales(false)
-      };
+        const fetchSucursales = async () => {
+            const sucursales = await getSucursales();
+            setSucursales(sucursales);
+            setSelectedSucursal(sucursales[0]);
+        };
     
-      fetchSucursales();
+        fetchSucursales();
     }, []);
 
-    const getListaPrecios = async (id) => {
-      try {
-        const listaPrecios = await window.SucursalesAPI.getListPrecios(id)
-        return listaPrecios
-      } catch (error) {
-          console.error('Error al obtener la lista de precios:', error);
-      }
-    }
-
-    const getListaNotas = async (id) => {
-      try {
-        const listaPrecios = await window.SucursalesAPI.getListPrecios(id)
-        return listaPrecios
-      } catch (error) {
-          console.error('Error al obtener la lista de precios:', error);
-      }
-    }
-
-    // Obtenemos la lista de precios
     useEffect(() => {
-      const fetchListaPrecios = async () => {
-        const listaPrecios = await getListaPrecios(selectedSucursal.id);
-        setListaPrecios(listaPrecios);
-        setLoadingPrices(false);
-      };
-    
-      fetchListaPrecios();
-    }, [ selectedSucursal ]);
+        if (selectedSucursal.id) {
+            const fetchListaPrecios = async () => {
+                const listaPrecios = await getListaPrecios(selectedSucursal.id);
+                setListaPrecios(listaPrecios);
+            };
+        
+            fetchListaPrecios();
+        }
+    }, [selectedSucursal]);
 
     const selectSucursal = (sucursal) => {
-      setSelectedSucursal(sucursal);
+        setSelectedSucursal(sucursal);
     }
 
-    const addPrenda = async (dataPrenda) => {
-      try {
-        await window.SucursalesAPI.savePrendaPrecio(dataPrenda);
-        const listaPrecios = await getListaPrecios(selectedSucursal.id);
-        setListaPrecios(listaPrecios);
-        setLoadingPrices(false);
-      } catch (error) {
-          console.error('Error al crear la prenda:', error);
-      }
+    const addOrUpdatePrenda = async (dataPrenda) => {
+        const { id_prenda } = dataPrenda
 
+        try {
+            if (id_prenda) {
+                await window.SucursalesAPI.updatePrenda(dataPrenda);
+            } else {
+                await window.SucursalesAPI.savePrendaPrecio(dataPrenda);
+            }
+            
+            const listaPrecios = await getListaPrecios(selectedSucursal.id);
+            setListaPrecios(listaPrecios);
+        } catch (error) {
+            throw new Error(error);
+        }
     }
 
-    const deletePrenda = async (prenda_id) => {
-      console.log("deletePrenda", prenda_id)
-      try {
-        await window.SucursalesAPI.deletePrenda(prenda_id);
-        const listaPrecios = await getListaPrecios(selectedSucursal.id);
-        setListaPrecios(listaPrecios);
-        setLoadingPrices(false);
-      } catch (error) {
-          console.error('Error al eliminar la prenda:', error);
-      }
-    }
-
-    const updatePrenda = async (dataPrenda) => {
-      console.log("updatePrenda", dataPrenda);
-      try {
-        await window.SucursalesAPI.updatePrenda(dataPrenda);
-        const listaPrecios = await getListaPrecios(selectedSucursal.id);
-        setListaPrecios(listaPrecios);
-        setLoadingPrices(false);
-      } catch (error) {
-          console.error('Error al actualizar la prenda:', error);
-      }
-    }
+    const deletePrenda = async (dataPrenda) => {
+        const { id_prenda } = dataPrenda
+    
+        try {
+            // Verificar que los IDs no sean null
+            if (id_prenda === undefined ) {
+                throw new Error('El id de la prenda no puede ser undefined.');
+            }
+            
+            // Llamar a la función para eliminar la prenda
+            await window.SucursalesAPI.deletePrenda(dataPrenda);
+            
+            // Obtener y actualizar la lista de precios
+            const listaPrecios = await getListaPrecios(selectedSucursal.id); // Pasar el ID de la sucursal seleccionada
+            setListaPrecios(listaPrecios);
+        } catch (error) {
+            // Lanzar una excepción en caso de error
+            throw new Error(error);
+        }
+    };
+      
 
     return {
         sucursales,
-        loadingPrices,
-        loadingSucursales,
         selectedSucursal,
         listaPrecios: listaPrecios || [],        
         selectSucursal,
         deletePrenda,
-        updatePrenda,
-        addPrenda
+        addOrUpdatePrenda
     };
-  };
-  
+};
