@@ -1,50 +1,48 @@
 // Header.tsx
 import { VStack, Image,  Link } from '@chakra-ui/react';
 import React, { memo, useState } from 'react';
-import { useRouter } from 'next/router';
 import { ModifiableAccordion, ModifiableAccordionItem } from '../modifiables';
 
 export const Drawer = () => {
 
-  const route = useRouter()
 
-    const sites = [
-      { 
-        nombre: "Sucursales",
-        path: "/sucursales",
-        iconUrl: "https://img.icons8.com/ios-filled/50/BF0B1A/shop.png",
-        menuList: [
-          {
-            nombre: "Información",
-            path: '/sucursales/informacion'
-          },
-          {
-            nombre: "Lista de precios",
-            path: '/sucursales/precios'
-          },
-          {
-            nombre: "Clientes",
-            path: '/sucursales/clientes'
-          }
-        ]
-      },
-      { 
-        nombre: "Notas",
-        path: "/notas",
-        iconUrl: "https://img.icons8.com/ios-filled/50/BF0B1A/sticky-notes.png",
-        menuList: [
-          {
-            nombre: "Ver notas",
-            path: '/notas/ver'
-          },
-          {
-            nombre: "Crear nueva nota",
-            path: '/notas/crear'
-          }
-        ]
-      }
-      
-    ]
+  const sites = [
+    { 
+      nombre: "Sucursales",
+      path: "/sucursales",
+      iconUrl: "https://img.icons8.com/ios-filled/50/BF0B1A/shop.png",
+      menuList: [
+        {
+          nombre: "Información",
+          path: '/sucursales/informacion'
+        },
+        {
+          nombre: "Lista de precios",
+          path: '/sucursales/precios'
+        },
+        {
+          nombre: "Clientes",
+          path: '/sucursales/clientes'
+        }
+      ]
+    },
+    { 
+      nombre: "Notas",
+      path: "/notas",
+      iconUrl: "https://img.icons8.com/ios-filled/50/BF0B1A/sticky-notes.png",
+      menuList: [
+        {
+          nombre: "Ver notas",
+          path: '/notas/ver'
+        },
+        {
+          nombre: "Crear nueva nota",
+          path: '/notas/crear'
+        }
+      ]
+    }
+    
+  ]
 
   return (
     <VStack
