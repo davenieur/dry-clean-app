@@ -1,13 +1,13 @@
 import React from 'react'
 import Head from 'next/head'
 
-import { Heading, MenuItem, Text, VStack, Divider, HStack, useDisclosure  } from '@chakra-ui/react'
+import { Heading, MenuItem, Text, VStack, Divider, HStack } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
 import { ModifiableForm, ModifiableMenu, ModifiableModal, ModifiableTable } from '../../components/modifiables'
 
 import { AddIcon, ArrowDownIcon } from '@chakra-ui/icons'
 import Swal from 'sweetalert2';
-import { ModifiableTableRow } from '../../components/modifiables/ModifiableTableRow'
+import { AddPrendaTableRow } from '../../components/forms'
 
 const prendaAddFormFields = {
   nombre: '',
@@ -85,7 +85,7 @@ export default function HomePage() {
         gap="1rem"
       >
         <Heading as="h1"> RopaBella </Heading>
-        <Heading as="h2" fontSize="xl" color="gray"> Lista de precios </Heading>
+        <Heading as="h2" fontSize="2xl" color="brand.gray">Listas de precios</Heading>
 
         <HStack
           w="100%"
@@ -153,7 +153,7 @@ export default function HomePage() {
                   listaPrecios.map(( element, index ) => {
                     return(
                       
-                      <ModifiableTableRow 
+                      <AddPrendaTableRow
                         key={ index }
                         id={ element.id }
                         prendaNombre={ element.nombre }

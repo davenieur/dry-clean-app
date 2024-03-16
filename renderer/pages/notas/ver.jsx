@@ -1,53 +1,76 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 
 import { Heading, MenuItem, Text, VStack, Divider, Td, Tr, Button, ButtonGroup, HStack } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
-import { ModifiableAlert, ModifiableForm, ModifiableMenu, ModifiableModal, ModifiableTable } from '../../components/modifiables'
+import { ModifiableAlert, ModifiableCard, ModifiableForm, ModifiableMenu, ModifiableModal, ModifiableTable } from '../../components/modifiables'
 import { MdBuild } from "react-icons/md"
 import { FaTrash } from 'react-icons/fa'
 import { AddIcon, ArrowDownIcon } from '@chakra-ui/icons'
 import Swal from 'sweetalert2';
 
 const prendaAddFormFields = {
-  nombre: '',
-  precio: '',
-  tipo_servicio: ''
+  num_nota: '',
+  cliente_name: '',
+  fecha_recepcion: '',
+  fecha_entrega: ''
 }
 
 export default function HomePage() {
 
-  const { sucursales, selectedSucursal, selectSucursal } = useDryCleanAPI()
+  const { sucursales, selectedSucursal, selectSucursal, getListaNotas } = useDryCleanAPI()
 
-  const { nombre, precio, tipo_servicio, onInputChange: onAddPrendaInputChange } = useForm( prendaAddFormFields );
+  //   const {num_nota,cliente,id_sucursal,fecha_recepcion,fecha_entrega,prendas}=dataNota
+
+  const { num_nota, cliente_name, fecha_recepcion, fecha_entrega, onInputChange: onAddNotaInputChange } = useForm( prendaAddFormFields );
+
+  const [listaNotas, setListaNotas] = useState([])
   
   const fields = [
     {
-      fieldName: "nombre",
-      type: "text",
-      value: nombre,
-      label: "Nombre",
-      helper: "Ingresa el nombre de la prenda",
-      error: "Nombre de la prenda requerido"
-    },
-    {
-      fieldName: "precio",
+      fieldName: "num_nota",
       type: "number",
-      value: precio,
-      label: "Precio",
-      helper: "Ingresa el precio de la prenda",
-      error: "Precio requerido"
+      value: num_nota,
+      label: "Número de nota",
+      helper: "Ingresa el precio de la nota",
+      error: "Nota requerida"
     },
     {
-      fieldName: "tipo_servicio",
-      type: "menu",
-      value: tipo_servicio,
-      label: "Tipo de servicio",
-      helper: "Selecciona el tipo de servicio",
-      error: "Tipo de servicio requerido",
-      options: ["Tintorería", "Planchado", "Lavado", "Teñido", "Pintada 1 color"]
-    }
+      fieldName: "cliente_name",
+      type: "text",
+      value: cliente_name,
+      label: "Nombre del cliente",
+      helper: "Ingresa el nombre del cliente",
+      error: "Nombre del cliente requerido"
+    },
+    {
+      fieldName: "fecha_recepcion",
+      type: "date",
+      value: fecha_recepcion,
+      label: "Fecha de recepción",
+      helper: "Ingresa la fecha de recepción",
+      error: "Fecha de recepción requerida"
+    },
   ]
+
+  useEffect(() => {
+    const fetchListaNotas = async () => {
+
+      // {sucursal_id,num_nota,cliente_name,fecha_desde,fecha_hasta
+
+      const dataPrenda = {
+        sucursal_id: selectedSucursal.id,
+        num_nota: '',
+        cliente_name: '',
+        fecha_desde: '',
+        fecha_hasta: ''
+      }
+      const listaNotas = await getListaNotas(dataPrenda);
+      setListaNotas(listaNotas);
+       
+    };
+    fetchListaNotas();
+}, []);
 
   const addNotaSubmit = () => {
     
@@ -59,30 +82,6 @@ export default function HomePage() {
     });
     
   }
-
-//   const onDeletePrenda = (element) => {
-//     deletePrenda( element )
-//   }
-
-//   const onUpdatePrenda = (id) => {
-//     const id_sucursal = selectedSucursal.id;
-
-//     const dataPrenda = {
-//       id_prenda: id,
-//       nombre: nombre,
-//       precio: precio,
-//       tipo_servicio: tipo_servicio,
-//       id_sucursal: id_sucursal
-//     }
-
-//     updatePrenda(dataPrenda, id_sucursal)
-
-//     Swal.fire({
-//       title: "Prenda actualizada",
-//       text: `La prenda ${ nombre } ha sido actualizada`,
-//       icon: "success"
-//     });
-//   }
 
 
   return (
@@ -98,61 +97,64 @@ export default function HomePage() {
         gap="1rem"
       >
         <Heading as="h1"> RopaBella </Heading>
-        <Heading as="h2" fontSize="xl" color="gray"> Ver notas </Heading>
+        <Heading as="h2" fontSize="2xl" color="brand.gray"> Ver notas </Heading>
 
-        <HStack
-          w="100%"
-        >
-          {/* Selección de sucursal */}
-          <ModifiableMenu 
-            icon={ <ArrowDownIcon color="brand.white"/>}
-            nombre={ selectedSucursal.nombre }
-            bg="brand.secondary"
-            color="brand.white"
-            hoverBg="brand.secondary"
-            expandedBg="brand.tertiary"
-            menuList={
-              <VStack
-                align="center"
-                justify="flex-start"
-              >
-                <Text as="p" fontSize="sm" color="brand.primary" w="100%" p=".5rem">Seleccionar sucursal</Text>
-                <Divider w="100%"/>
-                {
-                  sucursales.map(( element, index ) => {
-                    return(
-                      <MenuItem 
-                        key={ index } 
-                        fontSize="sm" 
-                        color="brand.primary"
-                        onClick={ () => selectSucursal(element) }
-                      >
-                          { element.nombre }
-                      </MenuItem>
-                    )
-                  })
+        <ModifiableCard
+          header={
+            <HStack spacing="1rem">
+              <Text>Agregar nota de la sucursal </Text>
+
+               {/* Selección de sucursal */}
+               <ModifiableMenu 
+                icon={ <ArrowDownIcon color="brand.white"/>}
+                nombre={ selectedSucursal.nombre }
+                bg="brand.secondary"
+                color="brand.white"
+                hoverBg="brand.secondary"
+                expandedBg="brand.tertiary"
+                menuList={
+                  <VStack
+                    align="center"
+                    justify="flex-start"
+                  >
+                    <Text as="p" fontSize="sm" color="brand.primary" w="100%" p=".5rem">Seleccionar sucursal</Text>
+                    <Divider w="100%"/>
+                    {
+                      sucursales.map(( element, index ) => {
+                        return(
+                          <MenuItem 
+                            key={ index } 
+                            fontSize="sm" 
+                            color="brand.primary"
+                            onClick={ () => selectSucursal(element) }
+                          >
+                              { element.nombre }
+                          </MenuItem>
+                        )
+                      })
+                    }
+                  </VStack>
                 }
-              </VStack>
-            }
-          /> 
-          
-          {/* Agregar prenda */}
-          <ModifiableModal 
-            leftIcon={<AddIcon />}
-            colorScheme='green'
-            fontSize="sm"
-            modalHeader="Agregar prenda"
-            buttonText={"Agregar prenda"}
-            modalBody={    
+              /> 
+            </HStack>
+          }
+          w="auto"
+          bg="white"
+          body={
+            <>
               <ModifiableForm 
+                w="100%"
                 fields={ fields }
-                onChange={ onAddPrendaInputChange }
+                onChange={ onAddNotaInputChange }
               />
-            }
-            onClick={ addNotaSubmit }
-          />
+            </>
+          }
+        >
+        
 
-        </HStack>
+         
+        
+        </ModifiableCard>
 
        
         

@@ -1,19 +1,13 @@
 import React from 'react'
 import { useForm, useDryCleanAPI } from '../../hooks'
 import { Td, Tr, ButtonGroup } from '@chakra-ui/react'
-import { ModifiableForm, ModifiableAlert, ModifiableModal } from './'
+import { ModifiableForm, ModifiableAlert, ModifiableModal } from '../modifiables'
 import { FaTrash } from 'react-icons/fa'
 import { MdBuild } from 'react-icons/md'
 import Swal from 'sweetalert2';
 
 
-const prendaUpdateFormFields = {
-    nombre: '',
-    precio: '',
-    tipo_servicio: ''
-  }
-
-export const ModifiableTableRow = ({ id, prendaNombre, prendaPrecio, prendaServicio, addOrUpdatePrenda, deletePrenda, selectedSucursal }) => {
+export const AddPrendaTableRow = ({ id, prendaNombre, prendaPrecio, prendaServicio, addOrUpdatePrenda, deletePrenda, selectedSucursal }) => {
     const { nombre, precio, tipo_servicio, onInputChange: onInputChange } = useForm( { nombre: prendaNombre, precio: prendaPrecio, tipo_servicio: prendaServicio }, { });
     
 
@@ -75,10 +69,6 @@ export const ModifiableTableRow = ({ id, prendaNombre, prendaPrecio, prendaServi
           icon: "error"
         });
       }
-
-        
-        
-        console.log(dataPrenda)
 
         addOrUpdatePrenda(dataPrenda)
 

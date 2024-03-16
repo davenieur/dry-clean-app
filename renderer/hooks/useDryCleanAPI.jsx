@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 export const useDryCleanAPI = ()  => {
     // Setters y getters
     const [sucursales, setSucursales] = useState([]);
+    const [listaNotas, setListaNotas] = useState([])
     const [selectedSucursal, setSelectedSucursal] = useState({});
     const [listaPrecios, setListaPrecios] = useState([]);
 
@@ -21,6 +22,15 @@ export const useDryCleanAPI = ()  => {
             return listaPrecios;
         } catch (error) {
             console.error('Error al obtener la lista de precios:', error);
+        }
+    }
+    // {sucursal_id,num_nota,cliente_name,fecha_desde,fecha_hasta
+    const getListaNotas = async(dataPrenda) => {
+        try {
+            const listaNotas = await window.SucursalesAPI.getListNotas(dataPrenda);
+            return listaNotas;
+        } catch (error) {
+            console.error('Error al obtener la lista de notas:', error);
         }
     }
 
@@ -91,7 +101,8 @@ export const useDryCleanAPI = ()  => {
     return {
         sucursales,
         selectedSucursal,
-        listaPrecios: listaPrecios || [],        
+        listaPrecios: listaPrecios || [],       
+        getListaNotas,
         selectSucursal,
         deletePrenda,
         addOrUpdatePrenda

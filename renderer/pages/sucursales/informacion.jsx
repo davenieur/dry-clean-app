@@ -20,7 +20,7 @@ export default function HomePage() {
         gap="1rem"
       >
         <Heading as="h1"> RopaBella </Heading>
-        <Heading as="h2"></Heading> 
+        <Heading as="h2" fontSize="2xl" color="brand.gray">Información de las sucursales</Heading>
 
         <ModifiableCard 
           w="15rem"

@@ -3,13 +3,13 @@ import { FormControl, FormLabel, Input, FormHelperText, FormErrorMessage } from 
 import { ModifiableNumberInput } from "./ModifiableNumberInput"
 import { ModifiableSelectMenu } from "./ModifiableSelectMenu"
 
-export const ModifiableFormControl = ({ fieldName, value, error, label, type, helper, options, onChange }) => {
+export const ModifiableFormControl = ({ fieldName, value, error, label, type, helper, options, onChange  }) => {
   
   
     const isError = value === '' || value === null
 
     return (
-        <FormControl isInvalid={isError} isRequired onChange={ onChange }>
+        <FormControl isInvalid={isError} onChange={ onChange }>
             <FormLabel>{ label }</FormLabel>
             {
                 type==="number" ? (

@@ -5,7 +5,7 @@ export const ModifiableForm = ({ fields = [], onChange }) => {
     
   
     return (
-      <VStack w="100%">
+      <VStack w="100%" spacing="2rem">
         {
             fields.map(( field, index ) => {
                 const { fieldName, value, label, helper, error, type, options } = field;
