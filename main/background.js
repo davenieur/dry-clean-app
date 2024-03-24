@@ -387,14 +387,14 @@ function handlerSaveNota(event,dataNota){
       prenda_id=listas_precios_res.listas_precios_id
       precioTotal+=(listas_precios_res.precio*prenda_obj.num_prendas)
     }
-    // for (let index = 0; index < prenda_obj.num_prendas; index++) { // agregamos el numero de prendas
-    //   if(prenda_obj.colores[index]){
-    //     reg_prendas.push({'prenda_listas_precios_id':prenda_id,'color':prenda_obj.colores[index]})
-    //   }else{ // si no se registraron más colores, se utiliza el ultimo, las veces necesarias
-    //     let last_id=prenda_obj.colores.length-1
-    //     reg_prendas.push({'prenda_listas_precios_id':prenda_id,'color':prenda_obj.colores[last_id]})
-    //   }
-    // }
+    for (let index = 0; index < prenda_obj.num_prendas; index++) { // agregamos el numero de prendas
+      if(prenda_obj.colores[index]){
+        reg_prendas.push({'prenda_listas_precios_id':prenda_id,'color':prenda_obj.colores[index]})
+      }else{ // si no se registraron más colores, se utiliza el ultimo, las veces necesarias
+        let last_id=prenda_obj.colores.length-1
+        reg_prendas.push({'prenda_listas_precios_id':prenda_id,'color':prenda_obj.colores[last_id]})
+      }
+    }
   })
   console.log('Prendas registradas')
   console.log(reg_prendas)

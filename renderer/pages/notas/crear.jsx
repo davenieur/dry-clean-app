@@ -41,7 +41,7 @@ export default function HomePage() {
       prenda_id: '',
       num_prendas: '',
       prenda_servicio: '',
-      color: '',
+      colores: [],
       precio: '',
       is_ok: false,
       is_comodin: false
@@ -99,7 +99,7 @@ export default function HomePage() {
       prenda_id:  '',
       num_prendas: '',
       prenda_servicio: '',
-      color: '',
+      colores: [],
       precio: '',
     }
     setPrendas([...prendas, newPrenda ])
@@ -111,15 +111,15 @@ export default function HomePage() {
   }
   
 
-  const updatePrenda = (prenda_index, prenda_id, num_prendas, prenda_servicio, color, precio) => {
+  const updatePrenda = (prenda_index, prenda_id, num_prendas, prenda_servicio, colores, precio) => {
     // Encuentra el índice del objeto en el arreglo 'prendas' que tenga el prenda_id dado
-    console.log(prenda_id, num_prendas, prenda_servicio, color, precio)
+    console.log(prenda_id, num_prendas, prenda_servicio, colores, precio)
     // Crea una copia del arreglo de prendas
     const nuevasPrendas = [...prendas];
 
     let is_ok;
 
-    if( num_prendas !== '' && prenda_servicio !== '' && color !== ''){
+    if( num_prendas !== '' && prenda_servicio !== '' && colores.length !== 0){
       is_ok = true;
     } else{
       is_ok = false
@@ -131,7 +131,7 @@ export default function HomePage() {
       prenda_id,
       num_prendas,
       prenda_servicio,
-      color,
+      colores,
       precio,
       is_ok
     };

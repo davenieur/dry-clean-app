@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useForm } from '../../hooks'
-import { Td, Tr, ButtonGroup, Button, FormControl, FormHelperText, FormErrorMessage } from '@chakra-ui/react'
+import { Td, Tr, CheckboxGroup, Checkbox, Button, FormControl, FormHelperText, FormErrorMessage, Stack } from '@chakra-ui/react'
 import { ModifiableNumberInput } from '../modifiables'
 import { FaTrash } from 'react-icons/fa'
 import { Select } from '@chakra-ui/react'
@@ -9,10 +9,10 @@ import Swal from 'sweetalert2';
 const addPrendaFields = {
     num_prendas: '', 
     prenda_servicio: '', 
-    color: ''
+    colores: []
 }
 
-const colores = [
+const coloresDisponibles = [
     {
         color: "Negro",
         value: "negro"
@@ -37,13 +37,27 @@ const colores = [
 
 
 export const AddNotaTableRow = ({ prendaIndex, deletePrenda, listaNotas, updatePrenda }) => {
-    const { num_prendas, prenda_servicio, color, onInputChange: onInputChange } = useForm(addPrendaFields);
+    const { num_prendas, prenda_servicio, onInputChange: onInputChange } = useForm(addPrendaFields);  
 
     const [precio, setPrecio] = useState(null);
-
+    
     const [prendaId, setPrendaId] = useState('')
 
+    const [colores, setColores] = useState([])
+
+    console.log(colores)
+
     const [precioTotal, setPrecioTotal] = useState(null)
+
+    
+    const handleToggle = (color) => {
+        const isChecked = colores.includes(color);
+        if (isChecked) {
+            setColores(colores.filter((c) => c !== color));
+        } else {
+            setColores([...colores, color]);
+        }
+    }
 
     useEffect(() => {
         const prendaSeleccionada = listaNotas.find(elemento => elemento.value === prenda_servicio);
@@ -63,8 +77,8 @@ export const AddNotaTableRow = ({ prendaIndex, deletePrenda, listaNotas, updateP
     }, [num_prendas, precio]); // Añade num_prendas y precio como dependencias
     
     useEffect(() => {
-        updatePrenda(prendaIndex, prendaId, num_prendas, prenda_servicio, color, precio);
-    }, [ num_prendas, prenda_servicio, color, precio ]); 
+        updatePrenda(prendaIndex, prendaId, num_prendas, prenda_servicio, colores, precio);
+    }, [ num_prendas, prenda_servicio, colores, precio ]); 
 
 
    
@@ -86,46 +100,58 @@ export const AddNotaTableRow = ({ prendaIndex, deletePrenda, listaNotas, updateP
            
             <Td>
                 <FormControl isInvalid={ prenda_servicio === '' } onChange={ onInputChange }>
-                <Select placeholder='Selecciona prenda - servicio' name="prenda_servicio" onChange={ onInputChange }>
-                    {
-                        listaNotas.map(( opcion, index ) => {
-                            const { value, nombre } = opcion
+                    <Select placeholder='Selecciona prenda - servicio' name="prenda_servicio" onChange={ onInputChange }>
+                        {
+                            listaNotas.map(( opcion, index ) => {
+                                const { value, nombre } = opcion
 
-                            return(
-                                <option key={`prenda-servicio-${index}`} value={ value }>{ nombre }</option>
-                            )   
-                        })
-                    }
+                                return(
+                                    <option key={`prenda-servicio-${index}`} value={ value }>{ nombre }</option>
+                                )   
+                            })
+                        }
 
-                </Select>
+                    </Select>
 
-                { prenda_servicio !== '' ? (
-                    <FormHelperText>
-                        Selecciona la prenda y el servicio
-                    </FormHelperText>
-                    ) : (
-                    <FormErrorMessage>Prenda y servicio requeridos</FormErrorMessage>
-                )}
+                    { prenda_servicio !== '' ? (
+                        <FormHelperText>
+                            Selecciona la prenda y el servicio
+                        </FormHelperText>
+                        ) : (
+                        <FormErrorMessage>Prenda y servicio requeridos</FormErrorMessage>
+                    )}
                 </FormControl>
             </Td>
 
             <Td>
-                <FormControl isInvalid={ color === '' } >
-                <Select placeholder='Selecciona el color' name="color" onChange={ onInputChange }>
-                    {
-                        colores.map(( color, index ) => {
-                            return( <option key={`color-${index}`} value={ color.value }>{ color.color }</option> )
-                        })
-                    }
-                </Select>
+                <FormControl isInvalid={ colores.length === 0 } >
+                    <CheckboxGroup name="colores" >
+                        <Stack direction="column">
+                            {
+                                coloresDisponibles.map(( color, index ) => {
+                                    return( 
+                                        <Checkbox 
+                                            key={`color-${index}`} 
+                                            onChange={() => handleToggle(color.color)}
+                                            value={ color.value }
+                                            isChecked={colores.includes(color.color)} 
+                                        >
+                                            { color.color }
+                                        </Checkbox> 
+                                    )
+                                })
+                            }
+                        </Stack>
+                        
+                    </CheckboxGroup>
 
-                { color !== '' ? (
-                    <FormHelperText>
-                        Selecciona el color
-                    </FormHelperText>
-                    ) : (
-                    <FormErrorMessage>Color requerido</FormErrorMessage>
-                )}
+                    { colores.length !== 0 ? (
+                        <FormHelperText>
+                            Selecciona los colores de la prenda
+                        </FormHelperText>
+                        ) : (
+                        <FormErrorMessage>Colores requeridos</FormErrorMessage>
+                    )}
                 </FormControl>
             </Td>
            
