@@ -330,18 +330,19 @@ function handlerUpdatePrenda(event, dataPrenda){
 
 
 function handlerSaveNota(event,dataNota){
-  
+  console.log(dataNota)
+
   //const db = new Database(path.join(__dirname,'../../db/dry_clean_six_stars.db'));
   const {num_nota,cliente,id_sucursal,fecha_recepcion,fecha_entrega,prendas}=dataNota
   const num_nota_int=parseInt(num_nota)
   const id_sucursal_int=parseInt(id_sucursal)
-  const FE_dia=parseInt(fecha_entrega.split('/')[0])
-  const FE_mes=parseInt(fecha_entrega.split('/')[1])
-  const FE_anio=parseInt(fecha_entrega.split('/')[2])
+  const FE_dia = fecha_recepcion.getDate(); // Obtener el día del mes (ej. 23)
+  const FE_mes = fecha_recepcion.getMonth(); // Obtener el mes (0 para enero, 1 para febrero, etc.)
+  const FE_anio = fecha_recepcion.getFullYear(); // Obtener el año (ej. 2024)
   const FE_date=FE_anio+'-'+FE_mes+'-'+FE_dia
-  const FR_dia=parseInt(fecha_recepcion.split('/')[0])
-  const FR_mes=parseInt(fecha_recepcion.split('/')[1])
-  const FR_anio=parseInt(fecha_recepcion.split('/')[2])
+  const FR_dia = fecha_entrega.getDate(); // Obtener el día del mes (ej. 23)
+  const FR_mes = fecha_entrega.getMonth(); // Obtener el mes (0 para enero, 1 para febrero, etc.)
+  const FR_anio = fecha_entrega.getFullYear(); // Obtener el año (ej. 2024)
   const FR_date=FR_anio+'-'+FR_mes+'-'+FR_dia
   let cliente_id
   if(Boolean(cliente)){
@@ -382,17 +383,18 @@ function handlerSaveNota(event,dataNota){
         and l.is_active  is TRUE
         limit 1;`
       let listas_precios_res=db.prepare(queryGetListasPreciosId).get(parseInt(prenda_obj.prenda_id),id_sucursal_int)
+      console.log("lista_precios", listas_precios_res)
       prenda_id=listas_precios_res.listas_precios_id
       precioTotal+=(listas_precios_res.precio*prenda_obj.num_prendas)
     }
-    for (let index = 0; index < prenda_obj.num_prendas; index++) { // agregamos el numero de prendas
-      if(prenda_obj.colores[index]){
-        reg_prendas.push({'prenda_listas_precios_id':prenda_id,'color':prenda_obj.colores[index]})
-      }else{ // si no se registraron más colores, se utiliza el ultimo, las veces necesarias
-        let last_id=prenda_obj.colores.length-1
-        reg_prendas.push({'prenda_listas_precios_id':prenda_id,'color':prenda_obj.colores[last_id]})
-      }
-    }
+    // for (let index = 0; index < prenda_obj.num_prendas; index++) { // agregamos el numero de prendas
+    //   if(prenda_obj.colores[index]){
+    //     reg_prendas.push({'prenda_listas_precios_id':prenda_id,'color':prenda_obj.colores[index]})
+    //   }else{ // si no se registraron más colores, se utiliza el ultimo, las veces necesarias
+    //     let last_id=prenda_obj.colores.length-1
+    //     reg_prendas.push({'prenda_listas_precios_id':prenda_id,'color':prenda_obj.colores[last_id]})
+    //   }
+    // }
   })
   console.log('Prendas registradas')
   console.log(reg_prendas)

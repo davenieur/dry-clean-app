@@ -22,7 +22,7 @@ const prendaAddFormFields = {
 
 export default function HomePage() {
 
-  const { sucursales, listaPrecios, selectedSucursal, selectSucursal } = useDryCleanAPI()
+  const { sucursales, listaPrecios, selectedSucursal, addNota, selectSucursal } = useDryCleanAPI()
  
   const [fecha_recepcion, setFecha_recepcion ] = useState(new Date());
 
@@ -38,13 +38,13 @@ export default function HomePage() {
 
   const [prendas, setPrendas] = useState([
     {
-      prenda_id: 1,
+      prenda_id: '',
       num_prendas: '',
       prenda_servicio: '',
       color: '',
       precio: '',
-      precio_total: '',
-      is_ok: false
+      is_ok: false,
+      is_comodin: false
     }
   ])
 
@@ -66,10 +66,11 @@ export default function HomePage() {
       error: "Nombre del cliente requerido"
     },
   ]
+
   useEffect(() => {
     const hasFalse = prendas.some(prenda => !prenda.is_ok); // Usar some en lugar de find para mejorar la legibilidad
     setPrendasOk(!hasFalse); // Setear el valor opuesto de hasFalse
-  
+    
   }, [prendas]);
   
   useEffect(() => {
@@ -82,6 +83,7 @@ export default function HomePage() {
     const preciosServicios = listaPrecios
       .filter(prenda => prenda.precio) // Filtrar solo los elementos con precio definido
       .map(prenda => ({
+        id: prenda.id,
         nombre: `${prenda.nombre} - ${prenda.servicio}`,
         value: `${prenda.nombre.toLowerCase().replace(/\s+/g, '-')}-${prenda.servicio.toLowerCase().replace(/\s+/g, '-')}`,
         precio: prenda.precio
@@ -89,32 +91,29 @@ export default function HomePage() {
   
     setListaNotas(preciosServicios);
   
-  }, [listaPrecios]);
+  }, [ listaPrecios ]);
   
-
   const addPrenda = () => {
+    
     const newPrenda = {
-      prenda_id:  prendas.length + 1,
+      prenda_id:  '',
       num_prendas: '',
       prenda_servicio: '',
       color: '',
       precio: '',
-      precio_total: ''
     }
     setPrendas([...prendas, newPrenda ])
   }
 
-  const deletePrenda = (prenda_id) => {
-    const newPrendas = prendas.filter( prenda => prenda.prenda_id !== prenda_id )
-    setPrendas(newPrendas)
+  const deletePrenda = (prenda_index) => {
+    const newPrendas = prendas.filter((_, index) => index !== prenda_index);
+    setPrendas(newPrendas);
   }
+  
 
-  const updatePrenda = (prenda_id, num_prendas, prenda_servicio, color, precio, precio_total) => {
+  const updatePrenda = (prenda_index, prenda_id, num_prendas, prenda_servicio, color, precio) => {
     // Encuentra el índice del objeto en el arreglo 'prendas' que tenga el prenda_id dado
-    const index = prendas.findIndex(prenda => prenda.prenda_id === prenda_id);
-    
-    // Verifica si se encontró el objeto en el arreglo
-    
+    console.log(prenda_id, num_prendas, prenda_servicio, color, precio)
     // Crea una copia del arreglo de prendas
     const nuevasPrendas = [...prendas];
 
@@ -127,13 +126,13 @@ export default function HomePage() {
     }
 
     // Actualiza el objeto con los nuevos valores
-    nuevasPrendas[index] = {
-      ...nuevasPrendas[index],
+    nuevasPrendas[prenda_index] = {
+      ...nuevasPrendas[prenda_index],
+      prenda_id,
       num_prendas,
       prenda_servicio,
       color,
       precio,
-      precio_total,
       is_ok
     };
 
@@ -142,16 +141,11 @@ export default function HomePage() {
     
   }
 
-  const addNotaSubmit = () => {
+  const addNotaSubmit = async() => {
 
-    const cliente = {
-      nombre: cliente_name,
-      sucursal_id: selectedSucursal.id,
-      is_owner_sucursal: false
-    }
-
+    
     const dataNota = {
-      cliente: cliente,
+      cliente: cliente_name,
       num_nota: num_nota,
       id_sucursal: selectedSucursal.id,
       fecha_entrega: fecha_entrega,
@@ -159,14 +153,30 @@ export default function HomePage() {
       prendas: prendas
     }
 
-    console.log(dataNota)
+    try {
+      // Intenta actualizar la prenda
+      await addNota(dataNota);
+  
+      // Si se agregar correctamente, muestra un mensaje de éxito
+      Swal.fire({
+        title: "Nota agregada",
+        text: `La nota ha sido agregada a la sucursal ${ selectedSucursal.nombre }`,
+        icon: "success"
+      });
 
-    Swal.fire({
-      title: "Nota agregada",
-      text: `La nota ha sido agregada a la sucursal ${ selectedSucursal.nombre }`,
-      icon: "success"
-    });
+    } catch (error) {
+      // Si hay un error al eliminar la prenda, muestra un mensaje de error
+      Swal.fire({
+        title: "Error",
+        text: "Ha ocurrido un error al intentar crear la prenda.",
+        icon: "error"
+      });
+    }
+
+
+
     
+
   }
 
   return (
@@ -268,11 +278,12 @@ export default function HomePage() {
                             tbody= {     
                               <>
                                 {
-                                  prendas.map(prenda => {
-                                    const { prenda_id } = prenda
+                                  prendas.map((prenda, index) => {
+                                    
                                     return( 
                                       <AddNotaTableRow 
-                                        prenda_id={ prenda_id }
+                                        key={`lista-prendas-item-${ index }`}
+                                        prendaIndex={ index }
                                         deletePrenda={ deletePrenda }
                                         listaNotas={ listaNotas }
                                         updatePrenda = { updatePrenda }
@@ -289,7 +300,7 @@ export default function HomePage() {
                       Agregar prenda
                     </Button>
 
-                    <Button  w="100%" colorScheme='green' fontSize="md" leftIcon={ <MdCreate /> } onClick={() => addNotaSubmit() } isDisabled={ disabledButton }>
+                    <Button  w="100%" colorScheme='green' fontSize="md" leftIcon={ <MdCreate /> } onClick={() => addNotaSubmit() } >
                         Crear nota
                     </Button>
                 </VStack>

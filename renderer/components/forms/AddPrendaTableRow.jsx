@@ -69,14 +69,6 @@ export const AddPrendaTableRow = ({ id, prendaNombre, prendaPrecio, prendaServic
           icon: "error"
         });
       }
-
-        addOrUpdatePrenda(dataPrenda)
-
-        Swal.fire({
-            title: "Prenda actualizada",
-            text: `La prenda ${ nombre } ha sido actualizada`,
-            icon: "success"
-        });
     }
 
     const updateFields = [

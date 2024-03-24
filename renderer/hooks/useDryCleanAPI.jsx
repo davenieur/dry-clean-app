@@ -59,6 +59,17 @@ export const useDryCleanAPI = ()  => {
         setSelectedSucursal(sucursal);
     }
 
+    const addNota = async(dataNota) => {
+
+        try {
+            const status = await window.SucursalesAPI.saveNota(dataNota);
+            console.log(status)
+            
+        } catch (error) {
+            throw new Error(error);
+        }
+    } 
+
     const addOrUpdatePrenda = async (dataPrenda) => {
         const { id_prenda } = dataPrenda
 
@@ -103,6 +114,7 @@ export const useDryCleanAPI = ()  => {
         selectedSucursal,
         listaPrecios: listaPrecios || [],       
         getListaNotas,
+        addNota,
         selectSucursal,
         deletePrenda,
         addOrUpdatePrenda

@@ -7,7 +7,7 @@ import { Select } from '@chakra-ui/react'
 import Swal from 'sweetalert2';
 
 const addPrendaFields = {
-    num_prendas: '1', 
+    num_prendas: '', 
     prenda_servicio: '', 
     color: ''
 }
@@ -36,26 +36,35 @@ const colores = [
 ]
 
 
-export const AddNotaTableRow = ({ prenda_id,deletePrenda, listaNotas, updatePrenda }) => {
+export const AddNotaTableRow = ({ prendaIndex, deletePrenda, listaNotas, updatePrenda }) => {
     const { num_prendas, prenda_servicio, color, onInputChange: onInputChange } = useForm(addPrendaFields);
 
-    const [precio, setPrecio] = useState(0)
+    const [precio, setPrecio] = useState(null);
 
-    const [precioTotal, setPrecioTotal] = useState(0)
+    const [prendaId, setPrendaId] = useState('')
+
+    const [precioTotal, setPrecioTotal] = useState(null)
 
     useEffect(() => {
-        const notaEncontrada = listaNotas.find(elemento => elemento.value === prenda_servicio);
-        const precio = notaEncontrada ? notaEncontrada.precio : null; 
+        const prendaSeleccionada = listaNotas.find(elemento => elemento.value === prenda_servicio);
+        const precio = prendaSeleccionada ? prendaSeleccionada.precio : null; 
         setPrecio(precio);
-    }, [prenda_servicio, listaNotas]); // Añade listaNotas como dependencia
+    }, [prenda_servicio, listaNotas]); 
     
+    useEffect(() => {
+        const prendaSeleccionada = listaNotas.find(elemento => elemento.value === prenda_servicio);
+        const id = prendaSeleccionada ? prendaSeleccionada.id : null; 
+        setPrendaId(id)
+    }, [prenda_servicio, listaNotas]); 
+    
+
     useEffect(() => {
         setPrecioTotal(num_prendas * precio);
     }, [num_prendas, precio]); // Añade num_prendas y precio como dependencias
     
     useEffect(() => {
-        updatePrenda(prenda_id, num_prendas, prenda_servicio, color, precio, precioTotal);
-    }, [ num_prendas, prenda_servicio, color, precio, precioTotal ]); 
+        updatePrenda(prendaIndex, prendaId, num_prendas, prenda_servicio, color, precio);
+    }, [ num_prendas, prenda_servicio, color, precio ]); 
 
 
    
@@ -124,7 +133,7 @@ export const AddNotaTableRow = ({ prenda_id,deletePrenda, listaNotas, updatePren
             <Td>{ precio }</Td>
             <Td>{ precioTotal }</Td>
             <Td> 
-              <Button w="100%" colorScheme='red' fontSize="md" onClick={() => deletePrenda(prenda_id) }>
+              <Button w="100%" colorScheme='red' fontSize="md" onClick={() => deletePrenda(prendaIndex) }>
                 <FaTrash />
               </Button>
             </Td>
