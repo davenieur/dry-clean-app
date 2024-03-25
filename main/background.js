@@ -431,7 +431,7 @@ function handlerGetListNotas(event,dataNota){
   console.log(sucursal_id,id_sucursal_int,Boolean(id_sucursal_int))
 
   //Query
-  sql= `SELECT n.nota_id,n.num_nota,
+  let sql= `SELECT n.nota_id,n.num_nota,
           c.nombre as nombre_cliente,
           s.nombre  as nombre_sucursal,
           n.precio_total,

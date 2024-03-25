@@ -1,5 +1,5 @@
 import React from 'react'
-import { useForm, useDryCleanAPI } from '../../hooks'
+import { useForm } from '../../hooks'
 import { Td, Tr, ButtonGroup } from '@chakra-ui/react'
 import { ModifiableForm, ModifiableAlert, ModifiableModal } from '../modifiables'
 import { FaTrash } from 'react-icons/fa'
@@ -37,9 +37,6 @@ export const AddPrendaTableRow = ({ id, prendaNombre, prendaPrecio, prendaServic
         });
       }
     };
-    
-    
-    
     
     // Actualizar prenda
     const onUpdatePrenda = async (id) => {

@@ -19,6 +19,7 @@ export const useDryCleanAPI = ()  => {
     const getListaPrecios = async (id) => {
         try {
             const listaPrecios = await window.SucursalesAPI.getListPrecios(id);
+            
             return listaPrecios;
         } catch (error) {
             console.error('Error al obtener la lista de precios:', error);
@@ -28,7 +29,8 @@ export const useDryCleanAPI = ()  => {
     const getListaNotas = async(dataPrenda) => {
         try {
             const listaNotas = await window.SucursalesAPI.getListNotas(dataPrenda);
-            return listaNotas;
+            const listaNotasArray = Object.values(listaNotas);
+            return listaNotasArray;
         } catch (error) {
             console.error('Error al obtener la lista de notas:', error);
         }

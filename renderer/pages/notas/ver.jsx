@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 
-import { Heading, MenuItem, Text, VStack, Divider, Td, Tr, Button, ButtonGroup, HStack } from '@chakra-ui/react'
+import { Heading, VStack, Grid, GridItem, Text, Card, Stack, CardBody, CardFooter, Button, HStack } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
-import { ModifiableAlert, ModifiableCard, ModifiableForm, ModifiableMenu, ModifiableModal, ModifiableTable } from '../../components/modifiables'
-import { MdBuild } from "react-icons/md"
-import { FaTrash } from 'react-icons/fa'
-import { AddIcon, ArrowDownIcon } from '@chakra-ui/icons'
+import { ModifiableTable } from '../../components/modifiables'
+
 import Swal from 'sweetalert2';
 
 const prendaAddFormFields = {
@@ -20,12 +18,13 @@ export default function HomePage() {
 
   const { sucursales, selectedSucursal, selectSucursal, getListaNotas } = useDryCleanAPI()
 
-  //   const {num_nota,cliente,id_sucursal,fecha_recepcion,fecha_entrega,prendas}=dataNota
 
   const { num_nota, cliente_name, fecha_recepcion, fecha_entrega, onInputChange: onAddNotaInputChange } = useForm( prendaAddFormFields );
 
   const [listaNotas, setListaNotas] = useState([])
   
+  console.log(listaNotas)
+
   const fields = [
     {
       fieldName: "num_nota",
@@ -54,35 +53,27 @@ export default function HomePage() {
   ]
 
   useEffect(() => {
-    const fetchListaNotas = async () => {
-
-      // {sucursal_id,num_nota,cliente_name,fecha_desde,fecha_hasta
-
-      const dataPrenda = {
-        sucursal_id: selectedSucursal.id,
-        num_nota: '',
-        cliente_name: '',
-        fecha_desde: '',
-        fecha_hasta: ''
+    const fetchData = async () => {
+      try {
+        const dataPrenda = {
+          sucursal_id: selectedSucursal.id,
+          num_nota: '',
+          cliente_name: '',
+          fecha_desde: '',
+          fecha_hasta: ''
+        };
+  
+        const listaNotas = await getListaNotas(dataPrenda);
+        setListaNotas(listaNotas);
+      } catch (error) {
+        console.error("Error al obtener la lista de notas:", error);
+        // Aquí puedes manejar el error de la manera que prefieras, como mostrando un mensaje al usuario.
       }
-      const listaNotas = await getListaNotas(dataPrenda);
-      setListaNotas(listaNotas);
-       
     };
-    fetchListaNotas();
-}, []);
-
-  const addNotaSubmit = () => {
-    
-    
-    Swal.fire({
-      title: "Nota agregada",
-      text: `La nota ha sido agregada a la sucursal ${ selectedSucursal.nombre }`,
-      icon: "success"
-    });
-    
-  }
-
+  
+    fetchData();
+  }, [selectedSucursal.id]); // Dependencia añadida para que useEffect se vuelva a ejecutar cuando selectedSucursal.id cambie
+  
 
   return (
     <>
@@ -99,65 +90,68 @@ export default function HomePage() {
         <Heading as="h1"> RopaBella </Heading>
         <Heading as="h2" fontSize="2xl" color="brand.gray"> Ver notas </Heading>
 
-        <ModifiableCard
-          header={
-            <HStack spacing="1rem">
-              <Text>Agregar nota de la sucursal </Text>
+        <Grid templateColumns='repeat(3, 1fr)' gap={6} w="100%">
+        {
+          listaNotas.length > 0 ? (
+            listaNotas.map((nota, index) => {
+              const { num_nota, nombre_cliente, nombre_sucursal, fecha_entrega, fecha_recepcion, fecha_registro, precio_total } = nota
 
-               {/* Selección de sucursal */}
-               <ModifiableMenu 
-                icon={ <ArrowDownIcon color="brand.white"/>}
-                nombre={ selectedSucursal.nombre }
-                bg="brand.secondary"
-                color="brand.white"
-                hoverBg="brand.secondary"
-                expandedBg="brand.tertiary"
-                menuList={
-                  <VStack
-                    align="center"
-                    justify="flex-start"
+              return (
+                <GridItem key={index} 
+                  w='100%' 
+                  h='auto' 
+                  color="brand.white"
+                  bg="brand.blue"
+                  
+                >
+                  <Card
+                    variant="outline"
+                    padding="1rem"
                   >
-                    <Text as="p" fontSize="sm" color="brand.primary" w="100%" p=".5rem">Seleccionar sucursal</Text>
-                    <Divider w="100%"/>
-                    {
-                      sucursales.map(( element, index ) => {
-                        return(
-                          <MenuItem 
-                            key={ index } 
-                            fontSize="sm" 
-                            color="brand.primary"
-                            onClick={ () => selectSucursal(element) }
-                          >
-                              { element.nombre }
-                          </MenuItem>
-                        )
-                      })
-                    }
-                  </VStack>
-                }
-              /> 
-            </HStack>
-          }
-          w="auto"
-          bg="white"
-          body={
-            <>
-              <ModifiableForm 
-                w="100%"
-                fields={ fields }
-                onChange={ onAddNotaInputChange }
-              />
-            </>
-          }
-        >
-        
+                    <Stack>
+                        <CardBody>
+                          <HStack spacing="2rem">
+                            <Heading size='md'>{ nombre_cliente }</Heading>
+                            <Heading size='md' color="brand.secondary">{ nombre_sucursal }</Heading>
+                          </HStack>
 
-         
-        
-        </ModifiableCard>
+                          <Text py='2' fontSize="md">
+                            Fecha de entrega: { fecha_entrega }
+                          </Text>
 
-       
-        
+                          <Text py='2' fontSize="md">
+                            Fecha de recepción: { fecha_recepcion }
+                          </Text>
+
+                          <Text py='2' fontSize="md">
+                            Fecha de registro: { fecha_registro }
+                          </Text>
+
+                          <Text py='2' fontSize="md" fontWeight="bold">
+                            {`Precio total: $${ precio_total ? precio_total : 0 }`}
+                          </Text>
+
+                          
+                        </CardBody>
+
+                        {/* <CardFooter>
+                          <Button variant='solid' colorScheme='blue'>
+                            Buy Latte
+                          </Button>
+                        </CardFooter> */}
+                      </Stack>
+                    
+                  </Card>
+                </GridItem>
+              )
+            }
+            
+            )
+          ) : (
+            <p>No hay notas disponibles.</p>
+          )
+        }
+        </Grid>
       </VStack>
     </>
   )

@@ -24,13 +24,17 @@ export default function HomePage() {
 
   const { sucursales, listaPrecios, selectedSucursal, addNota, selectSucursal } = useDryCleanAPI()
  
+  // Fecha de recepcion
   const [fecha_recepcion, setFecha_recepcion ] = useState(new Date());
 
+  // Fecha de entrega
   const [fecha_entrega,  setFecha_entrega] = useState(new Date())
 
+  // Campos del formulario
   const { num_nota, cliente_name, onInputChange: onAddNotaInputChange } = useForm( prendaAddFormFields );
 
-  const [listaNotas, setListaNotas] = useState([])
+  // 
+  const [listaPreciosServicios, setlistaPreciosServicios] = useState([])
 
   const [disabledButton, setDisabledButton] = useState(true)
 
@@ -89,7 +93,7 @@ export default function HomePage() {
         precio: prenda.precio
       }));
   
-    setListaNotas(preciosServicios);
+    setlistaPreciosServicios(preciosServicios);
   
   }, [ listaPrecios ]);
   
@@ -112,14 +116,13 @@ export default function HomePage() {
   
 
   const updatePrenda = (prenda_index, prenda_id, num_prendas, prenda_servicio, colores, precio) => {
-    // Encuentra el índice del objeto en el arreglo 'prendas' que tenga el prenda_id dado
-    console.log(prenda_id, num_prendas, prenda_servicio, colores, precio)
+
     // Crea una copia del arreglo de prendas
     const nuevasPrendas = [...prendas];
 
     let is_ok;
 
-    if( num_prendas !== '' && prenda_servicio !== '' && colores.length !== 0){
+    if( num_prendas !== '' && prenda_servicio !== '' && colores.length !== 0 && precio !== '' && prenda_id !== ''){
       is_ok = true;
     } else{
       is_ok = false
@@ -172,11 +175,6 @@ export default function HomePage() {
         icon: "error"
       });
     }
-
-
-
-    
-
   }
 
   return (
@@ -267,53 +265,47 @@ export default function HomePage() {
                         </FormControl>
                     </HStack>   
                     
-                   
+                    {/* Prendas */}
                     <FormControl isInvalid={ prendas.length === 0 } isRequired>
-                        <FormLabel>Prendas</FormLabel>
-                        {/* Tabla de los precios */}
-                        <ModifiableTable 
-                            p="1rem"
-                            w="auto"
-                            headers={[ "Num prendas", "Prenda - Servicio", "Colores", "Precio c/u", "Precio total", "Acciones"]}
-                            tbody= {     
-                              <>
-                                {
-                                  prendas.map((prenda, index) => {
-                                    
-                                    return( 
-                                      <AddNotaTableRow 
-                                        key={`lista-prendas-item-${ index }`}
-                                        prendaIndex={ index }
-                                        deletePrenda={ deletePrenda }
-                                        listaNotas={ listaNotas }
-                                        updatePrenda = { updatePrenda }
-                                      /> 
-                                    )
-                                  })
-                                }
-                              </>          
-                              
-                            }
-                        />
+                      <FormLabel>Prendas</FormLabel>
+                      
+                      {/* Tabla de los precios */}
+                      <ModifiableTable 
+                          p="1rem"
+                          w="auto"
+                          headers={[ "Num prendas", "Prenda - Servicio", "Colores", "Precio c/u", "Precio total", "Acciones"]}
+                          tbody= {     
+                            <>
+                              {
+                                prendas.map((prenda, index) => {
+                                  
+                                  return( 
+                                    <AddNotaTableRow 
+                                      key={`lista-prendas-item-${ index }`}
+                                      prendaIndex={ index }
+                                      deletePrenda={ deletePrenda }
+                                      listaPreciosServicios={ listaPreciosServicios }
+                                      updatePrenda = { updatePrenda }
+                                    /> 
+                                  )
+                                })
+                              }
+                            </>          
+                            
+                          }
+                      />
                     </FormControl>
                     <Button  w="fit-content" colorScheme='blue' fontSize="md" leftIcon={ <AddIcon /> } onClick={ addPrenda }>
                       Agregar prenda
                     </Button>
 
-                    <Button  w="100%" colorScheme='green' fontSize="md" leftIcon={ <MdCreate /> } onClick={() => addNotaSubmit() } >
+                    <Button  w="100%" colorScheme='green' fontSize="md" leftIcon={ <MdCreate /> } onClick={() => addNotaSubmit() } isDisabled={ disabledButton }>
                         Crear nota
                     </Button>
                 </VStack>
             }
-        >
-        
-
-         
-        
-        </ModifiableCard>
-
-       
-        
+          > 
+        </ModifiableCard> 
       </VStack>
     </>
   )

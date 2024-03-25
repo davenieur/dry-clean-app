@@ -5,6 +5,7 @@ import { ModifiableNumberInput } from '../modifiables'
 import { FaTrash } from 'react-icons/fa'
 import { Select } from '@chakra-ui/react'
 import Swal from 'sweetalert2';
+import { ColorMenu } from './ColorMenu'
 
 const addPrendaFields = {
     num_prendas: '', 
@@ -12,44 +13,54 @@ const addPrendaFields = {
     colores: []
 }
 
-const coloresDisponibles = [
-    {
-        color: "Negro",
-        value: "negro"
-    },
-    {
-        color: "Gris",
-        value: "gris"
-    },
-    {
-        color: "Azul", 
-        value: "azul"
-    },
-    {
-        color: "Blanco",
-        value: "blanco"
-    },
-    {
-        color: "Café",
-        value: "cafe"
-    }
-]
 
 
-export const AddNotaTableRow = ({ prendaIndex, deletePrenda, listaNotas, updatePrenda }) => {
+export const AddNotaTableRow = ({ prendaIndex, deletePrenda,  listaPreciosServicios, updatePrenda }) => {
     const { num_prendas, prenda_servicio, onInputChange: onInputChange } = useForm(addPrendaFields);  
 
+    // Precio de la prenda
     const [precio, setPrecio] = useState(null);
     
+    // Id de la prenda elegida
     const [prendaId, setPrendaId] = useState('')
 
+    // Colores de la prenda
     const [colores, setColores] = useState([])
 
-    console.log(colores)
+    const [coloresDisponibles, setColoresDisponibles] = useState(
+        [
+            {
+                color: "Negro",
+                value: "negro",
+                isCustom: false
+            },
+            {
+                color: "Gris",
+                value: "gris",
+                isCustom: false
+            },
+            {
+                color: "Azul", 
+                value: "azul",
+                isCustom: false
+            },
+            {
+                color: "Blanco",
+                value: "blanco",
+                isCustom: false
+            },
+            {
+                color: "Café",
+                value: "cafe",
+                isCustom: false
+            }
+        ]
+    )
 
+    // Precio total de la prenda
     const [precioTotal, setPrecioTotal] = useState(null)
 
-    
+    // Cambio de color
     const handleToggle = (color) => {
         const isChecked = colores.includes(color);
         if (isChecked) {
@@ -59,34 +70,44 @@ export const AddNotaTableRow = ({ prendaIndex, deletePrenda, listaNotas, updateP
         }
     }
 
+    const handleAddCustomColor = () => {
+        setColoresDisponibles([...coloresDisponibles, { color: '', value: '', isCustom: true }])
+    }
+
+    const handleDeleteCustomColor = (color_index) => {
+        const newColoresDisponibles = coloresDisponibles.filter((_, index) => index !== color_index);
+        setColoresDisponibles(newColoresDisponibles);
+    }
+
+    // Actualizando el precio de la prenda elegida
     useEffect(() => {
-        const prendaSeleccionada = listaNotas.find(elemento => elemento.value === prenda_servicio);
+        const prendaSeleccionada = listaPreciosServicios.find(elemento => elemento.value === prenda_servicio);
         const precio = prendaSeleccionada ? prendaSeleccionada.precio : null; 
         setPrecio(precio);
-    }, [prenda_servicio, listaNotas]); 
+    }, [prenda_servicio, listaPreciosServicios]); 
     
+    // Actualizando el id de la prenda elegida
     useEffect(() => {
-        const prendaSeleccionada = listaNotas.find(elemento => elemento.value === prenda_servicio);
+        const prendaSeleccionada = listaPreciosServicios.find(elemento => elemento.value === prenda_servicio);
         const id = prendaSeleccionada ? prendaSeleccionada.id : null; 
         setPrendaId(id)
-    }, [prenda_servicio, listaNotas]); 
+    }, [prenda_servicio, listaPreciosServicios]); 
     
-
+    // Modificando el precio total
     useEffect(() => {
         setPrecioTotal(num_prendas * precio);
-    }, [num_prendas, precio]); // Añade num_prendas y precio como dependencias
+    }, [num_prendas, precio]); 
     
+    // Actualizar el renglon de cada 
     useEffect(() => {
         updatePrenda(prendaIndex, prendaId, num_prendas, prenda_servicio, colores, precio);
     }, [ num_prendas, prenda_servicio, colores, precio ]); 
 
-
-   
     return(
         <Tr>
-            <Td>
+            <Td  w="10rem">
                 {/* Número de prendas */}
-                <FormControl isInvalid={ num_prendas === '' }  onChange={ onInputChange }>
+                <FormControl isInvalid={ num_prendas === '' }  onChange={ onInputChange }  w="fit-content">
                     <ModifiableNumberInput name={ "num_prendas" } defaultValue={ '' } onChange={ onInputChange }/>
                     { num_prendas !== '' ? (
                         <FormHelperText>
@@ -98,11 +119,16 @@ export const AddNotaTableRow = ({ prendaIndex, deletePrenda, listaNotas, updateP
                 </FormControl>
             </Td>
            
-            <Td>
-                <FormControl isInvalid={ prenda_servicio === '' } onChange={ onInputChange }>
-                    <Select placeholder='Selecciona prenda - servicio' name="prenda_servicio" onChange={ onInputChange }>
+            <Td w="25rem">
+                <FormControl isInvalid={ prenda_servicio === '' } onChange={ onInputChange }  w="fit-content">
+                    <Select 
+                        placeholder='Selecciona prenda - servicio' 
+                        name="prenda_servicio" 
+                        onChange={ onInputChange }
+                        w="20rem"
+                    >
                         {
-                            listaNotas.map(( opcion, index ) => {
+                            listaPreciosServicios.map(( opcion, index ) => {
                                 const { value, nombre } = opcion
 
                                 return(
@@ -123,41 +149,19 @@ export const AddNotaTableRow = ({ prendaIndex, deletePrenda, listaNotas, updateP
                 </FormControl>
             </Td>
 
-            <Td>
-                <FormControl isInvalid={ colores.length === 0 } >
-                    <CheckboxGroup name="colores" >
-                        <Stack direction="column">
-                            {
-                                coloresDisponibles.map(( color, index ) => {
-                                    return( 
-                                        <Checkbox 
-                                            key={`color-${index}`} 
-                                            onChange={() => handleToggle(color.color)}
-                                            value={ color.value }
-                                            isChecked={colores.includes(color.color)} 
-                                        >
-                                            { color.color }
-                                        </Checkbox> 
-                                    )
-                                })
-                            }
-                        </Stack>
-                        
-                    </CheckboxGroup>
-
-                    { colores.length !== 0 ? (
-                        <FormHelperText>
-                            Selecciona los colores de la prenda
-                        </FormHelperText>
-                        ) : (
-                        <FormErrorMessage>Colores requeridos</FormErrorMessage>
-                    )}
-                </FormControl>
+            <Td w="20rem">
+                <ColorMenu 
+                    colores={ colores } 
+                    coloresDisponibles= { coloresDisponibles } 
+                    handleToggle = { handleToggle }
+                    handleAddCustomColor = { handleAddCustomColor }
+                    handleDeleteCustomColor = { handleDeleteCustomColor }
+                />
             </Td>
            
 
-            <Td>{ precio }</Td>
-            <Td>{ precioTotal }</Td>
+            <Td w="10rem">{ precio }</Td>
+            <Td w="10rem">{ precioTotal }</Td>
             <Td> 
               <Button w="100%" colorScheme='red' fontSize="md" onClick={() => deletePrenda(prendaIndex) }>
                 <FaTrash />
