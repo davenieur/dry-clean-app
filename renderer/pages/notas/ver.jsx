@@ -1,66 +1,72 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 
-import { Heading, VStack, Grid, GridItem, Text, Card, Stack, CardBody, CardFooter, Button, HStack } from '@chakra-ui/react'
+import { Heading, VStack, Grid, GridItem, Text, Card, CardBody, HStack } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
-import { ModifiableTable } from '../../components/modifiables'
+import { Filtrado } from '../../components/forms'
 
-import Swal from 'sweetalert2';
-
-const prendaAddFormFields = {
+const notaFilterFormFields = {
   num_nota: '',
   cliente_name: '',
   fecha_recepcion: '',
   fecha_entrega: ''
 }
 
+
+
 export default function HomePage() {
 
   const { sucursales, selectedSucursal, selectSucursal, getListaNotas } = useDryCleanAPI()
 
+  const { num_nota, cliente_name, fecha_recepcion, fecha_entrega, onInputChange } = useForm( notaFilterFormFields );
 
-  const { num_nota, cliente_name, fecha_recepcion, fecha_entrega, onInputChange: onAddNotaInputChange } = useForm( prendaAddFormFields );
-
-  const [listaNotas, setListaNotas] = useState([])
   
-  console.log(listaNotas)
-
   const fields = [
     {
       fieldName: "num_nota",
       type: "number",
       value: num_nota,
       label: "Número de nota",
-      helper: "Ingresa el precio de la nota",
-      error: "Nota requerida"
+     
     },
     {
       fieldName: "cliente_name",
       type: "text",
       value: cliente_name,
       label: "Nombre del cliente",
-      helper: "Ingresa el nombre del cliente",
-      error: "Nombre del cliente requerido"
+     
     },
     {
       fieldName: "fecha_recepcion",
-      type: "date",
+      type: "text",
       value: fecha_recepcion,
       label: "Fecha de recepción",
-      helper: "Ingresa la fecha de recepción",
-      error: "Fecha de recepción requerida"
+     
+    },
+    {
+      fieldName: "fecha_entrega",
+      type: "text",
+      value: fecha_entrega,
+      label: "Fecha de entrega",
+  
     },
   ]
 
+
+  const [listaNotas, setListaNotas] = useState([])
+  
+ 
+
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
         const dataPrenda = {
           sucursal_id: selectedSucursal.id,
-          num_nota: '',
-          cliente_name: '',
-          fecha_desde: '',
-          fecha_hasta: ''
+          num_nota: num_nota,
+          cliente_name: cliente_name,
+          fecha_desde: fecha_recepcion,
+          fecha_hasta: fecha_entrega
         };
   
         const listaNotas = await getListaNotas(dataPrenda);
@@ -72,7 +78,7 @@ export default function HomePage() {
     };
   
     fetchData();
-  }, [selectedSucursal.id]); // Dependencia añadida para que useEffect se vuelva a ejecutar cuando selectedSucursal.id cambie
+  }, [selectedSucursal.id, num_nota, cliente_name, fecha_recepcion, fecha_entrega ]); // Dependencia añadida para que useEffect se vuelva a ejecutar cuando selectedSucursal.id cambie
   
 
   return (
@@ -90,11 +96,50 @@ export default function HomePage() {
         <Heading as="h1"> RopaBella </Heading>
         <Heading as="h2" fontSize="2xl" color="brand.gray"> Ver notas </Heading>
 
+        <Filtrado fields={ fields } onInputChange = { onInputChange } />
+
+        <Heading as="h3" fontSize="lg" color="brand.gray"> Resultados </Heading>
+
         <Grid templateColumns='repeat(3, 1fr)' gap={6} w="100%">
-        {
-          listaNotas.length > 0 ? (
+          {
+           
             listaNotas.map((nota, index) => {
-              const { num_nota, nombre_cliente, nombre_sucursal, fecha_entrega, fecha_recepcion, fecha_registro, precio_total } = nota
+              const { num_nota, nombre_cliente, nombre_sucursal, fecha_entrega, fecha_recepcion, fecha_registro, precio_total, prendas } = nota
+
+              // Usar reduce para agrupar las prendas por color y nombre de prenda, y sumar sus precios
+              let resumenPrendas = prendas.reduce((resumen, prenda) => {
+                // Crear una clave única para cada combinación de color y nombre de prenda
+                let clave = `${prenda.nombre_prenda}-${prenda.color}`;
+
+                // Si la clave ya existe en el objeto de resumen, sumar el precio
+                if (resumen[clave]) {
+                    resumen[clave].totalPrecio += prenda.precio;
+                    resumen[clave].cantidadPrendas++;
+                } else {
+                    // Si la clave no existe, inicializar el precio
+                    resumen[clave] = {
+                        totalPrecio: prenda.precio,
+                        cantidadPrendas: 1
+                    };
+                }
+
+                return resumen;
+              }, {});
+
+              
+              // Mapear el objeto de conteo para renderizar cada combinación de nombre y color
+              const listaPrendas = Object.keys(resumenPrendas).map((clave, index) => {
+                let [nombre, color] = clave.split("-");
+                return (
+                   
+                  <HStack fontSize="sm" color="brand.gray" justify="space-between" w="100%"  key={index}>
+                    <Text>{`${nombre} - ${color}: ${resumenPrendas[clave].cantidadPrendas} ${resumenPrendas[clave].cantidadPrendas === 1 ? "prenda" : "prendas"}`}</Text>
+                    <Text> ${resumenPrendas[clave].totalPrecio} </Text>
+                  </HStack>
+                  
+                );
+            });
+            
 
               return (
                 <GridItem key={index} 
@@ -107,49 +152,62 @@ export default function HomePage() {
                   <Card
                     variant="outline"
                     padding="1rem"
+                    w="100%"
                   >
-                    <Stack>
-                        <CardBody>
-                          <HStack spacing="2rem">
-                            <Heading size='md'>{ nombre_cliente }</Heading>
-                            <Heading size='md' color="brand.secondary">{ nombre_sucursal }</Heading>
-                          </HStack>
+                  
+                    <CardBody display="flex" flexDir="column" gap="2rem"  w="100%">
+                      <VStack align="flex-start" w="100%">
+                        
+                        <Heading size='md' color="brand.secondary">{ nombre_sucursal }</Heading>
+                        <Heading size='md'>{ nombre_cliente }</Heading>
+                        <Text py='2' fontSize="sm" fontWeight="bold" opacity="0.75">
+                          Número de nota: { num_nota ? num_nota : "S/N" }
+                        </Text>
+                      </VStack>
+                      
 
-                          <Text py='2' fontSize="md">
-                            Fecha de entrega: { fecha_entrega }
-                          </Text>
+                      
 
-                          <Text py='2' fontSize="md">
-                            Fecha de recepción: { fecha_recepcion }
-                          </Text>
+                      <VStack w="100%" align="flex-start"> 
+                        <Text  fontSize="sm"  fontWeight="bold">
+                            Fechas
+                        </Text>
 
-                          <Text py='2' fontSize="md">
-                            Fecha de registro: { fecha_registro }
-                          </Text>
+                        <Text fontSize="sm">
+                          Fecha de entrega: { fecha_entrega }
+                        </Text>
 
-                          <Text py='2' fontSize="md" fontWeight="bold">
-                            {`Precio total: $${ precio_total ? precio_total : 0 }`}
-                          </Text>
+                        <Text  fontSize="sm">
+                          Fecha de recepción: { fecha_recepcion }
+                        </Text>
 
-                          
-                        </CardBody>
+                        <Text fontSize="sm">
+                          Fecha de registro: { fecha_registro }
+                        </Text>
+                      </VStack>
 
-                        {/* <CardFooter>
-                          <Button variant='solid' colorScheme='blue'>
-                            Buy Latte
-                          </Button>
-                        </CardFooter> */}
-                      </Stack>
-                    
+                      <VStack w="100%" align="flex-start">
+                        <Heading as="h3" fontSize="sm">Prendas</Heading>
+                      
+                          { listaPrendas }
+
+                      
+                      </VStack>
+                      
+    
+                      <Text fontSize="sm" w="100%" textAlign="end" align="center" fontWeight="bold">
+                        {`Precio total: $${ precio_total ? precio_total : 0 }`}
+                      </Text>
+                      
+
+                    </CardBody>
                   </Card>
                 </GridItem>
               )
             }
-            
-            )
-          ) : (
-            <p>No hay notas disponibles.</p>
+          
           )
+          
         }
         </Grid>
       </VStack>

@@ -78,7 +78,7 @@ export default function HomePage() {
   }, [prendas]);
   
   useEffect(() => {
-    const isFormComplete = fecha_entrega !== '' && fecha_recepcion !== '' && num_nota !== '' && cliente_name !== '' && prendasOk;
+    const isFormComplete = fecha_entrega !== '' && fecha_recepcion !== '' && prendasOk;
     setDisabledButton(!isFormComplete); // Setear el botón deshabilitado al opuesto de isFormComplete
   
   }, [fecha_entrega, fecha_recepcion, num_nota, cliente_name, prendasOk]);
