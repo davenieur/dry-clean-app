@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
-
 import { Heading, VStack, Grid, GridItem, Text, Card, CardBody, HStack } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
 import { Filtrado } from '../../components/forms'
@@ -95,6 +94,9 @@ export default function HomePage() {
           fecha_hasta={ fecha_hasta }
           setFecha_desde={ setFecha_desde }
           setFecha_hasta={ setFecha_hasta }
+          selectSucursal={ selectSucursal }
+          selectedSucursal={ selectedSucursal }
+          sucursales={ sucursales }
         />
 
         

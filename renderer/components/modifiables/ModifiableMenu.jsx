@@ -6,7 +6,6 @@ export const ModifiableMenu = ( { icon, nombre, menuList = [], bg, color, hoverB
   return(
     <Menu 
       transition='all 0.2s'
-      
     >
       <MenuButton
         as={IconButton}
@@ -17,6 +16,7 @@ export const ModifiableMenu = ( { icon, nombre, menuList = [], bg, color, hoverB
         display="flex"
         color={ color }
         flexDir="row"
+        w="100%"
         _hover={{ bg: hoverBg, color: hoverColor }}
         _expanded={{ bg: expandedBg, color: expandedColor }}
         _focus={{ boxShadow: 'outline' }}
