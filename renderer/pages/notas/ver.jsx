@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { Heading, VStack, Grid, GridItem, Text, Card, CardBody, HStack } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
 import { Filtrado } from '../../components/forms'
+import { convierteFecha } from '../../helpers'
 
 const notaFilterFormFields = {
   num_nota: '',
@@ -18,9 +19,15 @@ export default function HomePage() {
 
   const { sucursales, selectedSucursal, selectSucursal, getListaNotas } = useDryCleanAPI()
 
-  const { num_nota, cliente_name, fecha_recepcion, fecha_entrega, onInputChange } = useForm( notaFilterFormFields );
+  const { num_nota, cliente_name, onInputChange } = useForm( notaFilterFormFields );
 
-  
+   // Fecha desde
+   const [fecha_desde, setFecha_desde ] = useState(null);
+
+   // Fecha hasta
+   const [fecha_hasta,  setFecha_hasta] = useState(null)
+
+
   const fields = [
     {
       fieldName: "num_nota",
@@ -35,28 +42,11 @@ export default function HomePage() {
       value: cliente_name,
       label: "Nombre del cliente",
      
-    },
-    {
-      fieldName: "fecha_recepcion",
-      type: "text",
-      value: fecha_recepcion,
-      label: "Fecha de recepción",
-     
-    },
-    {
-      fieldName: "fecha_entrega",
-      type: "text",
-      value: fecha_entrega,
-      label: "Fecha de entrega",
-  
-    },
+    }
   ]
 
 
   const [listaNotas, setListaNotas] = useState([])
-  
- 
-
   
   useEffect(() => {
     const fetchData = async () => {
@@ -65,9 +55,11 @@ export default function HomePage() {
           sucursal_id: selectedSucursal.id,
           num_nota: num_nota,
           cliente_name: cliente_name,
-          fecha_desde: fecha_recepcion,
-          fecha_hasta: fecha_entrega
+          fecha_desde: convierteFecha(fecha_desde),
+          fecha_hasta: convierteFecha(fecha_hasta)
         };
+
+        console.log(dataPrenda)
   
         const listaNotas = await getListaNotas(dataPrenda);
         setListaNotas(listaNotas);
@@ -78,7 +70,7 @@ export default function HomePage() {
     };
   
     fetchData();
-  }, [selectedSucursal.id, num_nota, cliente_name, fecha_recepcion, fecha_entrega ]); // Dependencia añadida para que useEffect se vuelva a ejecutar cuando selectedSucursal.id cambie
+  }, [selectedSucursal.id, num_nota, cliente_name, fecha_desde, fecha_hasta ]); 
   
 
   return (
@@ -96,7 +88,16 @@ export default function HomePage() {
         <Heading as="h1"> RopaBella </Heading>
         <Heading as="h2" fontSize="2xl" color="brand.gray"> Ver notas </Heading>
 
-        <Filtrado fields={ fields } onInputChange = { onInputChange } />
+        <Filtrado 
+          fields={ fields } 
+          onInputChange = { onInputChange } 
+          fecha_desde={ fecha_desde }
+          fecha_hasta={ fecha_hasta }
+          setFecha_desde={ setFecha_desde }
+          setFecha_hasta={ setFecha_hasta }
+        />
+
+        
 
         <Heading as="h3" fontSize="lg" color="brand.gray"> Resultados </Heading>
 
@@ -105,6 +106,12 @@ export default function HomePage() {
            
             listaNotas.map((nota, index) => {
               const { num_nota, nombre_cliente, nombre_sucursal, fecha_entrega, fecha_recepcion, fecha_registro, precio_total, prendas } = nota
+
+              const newFecha_entrega = convierteFecha(fecha_entrega)
+
+              const newFecha_registro = convierteFecha(fecha_registro)
+
+              const newFecha_recepcion = convierteFecha(fecha_recepcion)
 
               // Usar reduce para agrupar las prendas por color y nombre de prenda, y sumar sus precios
               let resumenPrendas = prendas.reduce((resumen, prenda) => {
@@ -138,7 +145,7 @@ export default function HomePage() {
                   </HStack>
                   
                 );
-            });
+              });
             
 
               return (
@@ -157,49 +164,40 @@ export default function HomePage() {
                   
                     <CardBody display="flex" flexDir="column" gap="2rem"  w="100%">
                       <VStack align="flex-start" w="100%">
-                        
-                        <Heading size='md' color="brand.secondary">{ nombre_sucursal }</Heading>
+                        <HStack  w="100%" justify="space-between">
+                          <Heading size='md' color="brand.secondary">{ nombre_sucursal }</Heading>
+                          <Text py='2' fontSize="sm" color="brand.tertiary" fontWeight="bold" opacity="0.75">
+                            Número de nota: { num_nota ? num_nota : "S/N" }
+                          </Text>
+                        </HStack>
+
                         <Heading size='md'>{ nombre_cliente }</Heading>
+                       
                         <Text py='2' fontSize="sm" fontWeight="bold" opacity="0.75">
-                          Número de nota: { num_nota ? num_nota : "S/N" }
+                          Fecha de registro: { newFecha_registro }
                         </Text>
+                        
                       </VStack>
                       
-
-                      
-
                       <VStack w="100%" align="flex-start"> 
-                        <Text  fontSize="sm"  fontWeight="bold">
-                            Fechas
-                        </Text>
-
-                        <Text fontSize="sm">
-                          Fecha de entrega: { fecha_entrega }
-                        </Text>
-
+                        <Heading as="h3" fontSize="sm">Fechas</Heading>
                         <Text  fontSize="sm">
-                          Fecha de recepción: { fecha_recepcion }
+                          Recepción: { newFecha_recepcion }
                         </Text>
-
                         <Text fontSize="sm">
-                          Fecha de registro: { fecha_registro }
+                          Entrega: { newFecha_entrega }
                         </Text>
                       </VStack>
 
                       <VStack w="100%" align="flex-start">
                         <Heading as="h3" fontSize="sm">Prendas</Heading>
-                      
                           { listaPrendas }
-
-                      
                       </VStack>
                       
-    
                       <Text fontSize="sm" w="100%" textAlign="end" align="center" fontWeight="bold">
                         {`Precio total: $${ precio_total ? precio_total : 0 }`}
                       </Text>
-                      
-
+                    
                     </CardBody>
                   </Card>
                 </GridItem>

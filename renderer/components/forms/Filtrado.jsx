@@ -1,9 +1,9 @@
-import { useDryCleanAPI, useForm } from '../../hooks';
-import { Box, FormControl, FormLabel, Input, Grid, GridItem, Heading, VStack } from '@chakra-ui/react'
-import { ModifiableForm } from '../modifiables';
+import { FormControl, FormLabel, Input, Grid, GridItem, Heading, VStack } from '@chakra-ui/react'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 
-export const Filtrado = ({ fields, onInputChange }) => {
+export const Filtrado = ({ fields, onInputChange, fecha_desde, setFecha_desde, fecha_hasta, setFecha_hasta }) => {
   
   
   return (
@@ -17,7 +17,6 @@ export const Filtrado = ({ fields, onInputChange }) => {
        
         padding="1rem"
       >
-        
         {
           fields.map(( field, index) => {
             const { value, fieldName, label, error, helper } = field
@@ -42,6 +41,25 @@ export const Filtrado = ({ fields, onInputChange }) => {
             )
           })
         }
+
+        <GridItem>
+          <FormControl>
+            <FormLabel>Fecha de registro desde</FormLabel>
+            
+            <DatePicker showIcon selected={ fecha_desde } onChange={(date) => setFecha_desde(date)} dateFormat="dd/MM/yyyy"/>
+
+          </FormControl>
+        </GridItem>
+
+        <GridItem>
+          <FormControl>
+            <FormLabel>Fecha de registro hasta</FormLabel>
+            
+            <DatePicker showIcon selected={ fecha_hasta } onChange={(date) => setFecha_hasta(date)} dateFormat="dd/MM/yyyy"/>
+
+          </FormControl>
+        </GridItem>
+
       </Grid>
 
     </VStack>

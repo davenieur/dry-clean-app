@@ -247,14 +247,14 @@ export default function HomePage() {
                         <FormControl isInvalid={ fecha_recepcion === '' } isRequired>
                                 <FormLabel>Fecha de recepción</FormLabel>
                                 
-                                <DatePicker showIcon selected={ fecha_recepcion } onChange={(date) => setFecha_recepcion(date)}/>
+                                <DatePicker showIcon selected={ fecha_recepcion } onChange={(date) => setFecha_recepcion(date)} dateFormat="dd/MM/yyyy"/>
 
                         </FormControl>
                         {/* Fecha de entrega */}
                         <FormControl isInvalid={ fecha_entrega < fecha_recepcion } isRequired>
                                 <FormLabel>Fecha de entrega</FormLabel>
                                 
-                                <DatePicker showIcon selected={ fecha_entrega } onChange={(date) => setFecha_entrega(date)}/>
+                                <DatePicker showIcon selected={ fecha_entrega } onChange={(date) => setFecha_entrega(date)} dateFormat="dd/MM/yyyy"/>
                                 
                                 {fecha_entrega > fecha_recepcion ? (
                                     null
