@@ -98,9 +98,7 @@ export default function HomePage() {
           selectedSucursal={ selectedSucursal }
           sucursales={ sucursales }
         />
-
         
-
         <Heading as="h3" fontSize="lg" color="brand.gray"> Resultados </Heading>
 
         <Grid templateColumns='repeat(3, 1fr)' gap={6} w="100%">

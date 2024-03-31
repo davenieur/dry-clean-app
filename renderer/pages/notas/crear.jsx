@@ -33,13 +33,16 @@ export default function HomePage() {
   // Campos del formulario
   const { num_nota, cliente_name, onInputChange: onAddNotaInputChange } = useForm( prendaAddFormFields );
 
-  // 
+  // Lista de precios y servicios
   const [listaPreciosServicios, setlistaPreciosServicios] = useState([])
 
+  // Botón inhabilitado
   const [disabledButton, setDisabledButton] = useState(true)
 
+  // Definir si las prendas están bien
   const [prendasOk, setPrendasOk] = useState(false)
 
+  // Arreglo de prendas
   const [prendas, setPrendas] = useState([
     {
       prenda_id: '',
@@ -48,7 +51,7 @@ export default function HomePage() {
       colores: [],
       precio: '',
       is_ok: false,
-      is_comodin: false
+      is_comodin: ''
     }
   ])
 
@@ -71,18 +74,21 @@ export default function HomePage() {
     },
   ]
 
+  // Validar si las prendas agregadas son validas
   useEffect(() => {
     const hasFalse = prendas.some(prenda => !prenda.is_ok); // Usar some en lugar de find para mejorar la legibilidad
     setPrendasOk(!hasFalse); // Setear el valor opuesto de hasFalse
     
   }, [prendas]);
   
+  // Validar si el form cumple con las características
   useEffect(() => {
-    const isFormComplete = fecha_entrega !== '' && fecha_recepcion !== '' && prendasOk;
+    const isFormComplete = fecha_entrega !== '' && fecha_recepcion !== '' && prendasOk && prendas.length !== 0;
     setDisabledButton(!isFormComplete); // Setear el botón deshabilitado al opuesto de isFormComplete
   
   }, [fecha_entrega, fecha_recepcion, num_nota, cliente_name, prendasOk]);
   
+  // Cargar los precios y servicios
   useEffect(() => {
     const preciosServicios = listaPrecios
       .filter(prenda => prenda.precio) // Filtrar solo los elementos con precio definido
@@ -96,6 +102,16 @@ export default function HomePage() {
     setlistaPreciosServicios(preciosServicios);
   
   }, [ listaPrecios ]);
+
+  // Agregar un nuevo elemento de precio - servicio
+  const handleAddCustomPrecioServicio = (prenda, servicio, precio) => {
+    const prendaLower = prenda.toLowerCase().replace(/\s+/g, '-')
+    const servicioLower = servicio.toLowerCase().replace(/\s+/g, '-')
+    const nombre = prenda + ' - ' + servicio 
+    const value = prendaLower + '-' + servicioLower
+    const id = listaPreciosServicios.length + 1
+    setlistaPreciosServicios([...listaPreciosServicios, { id: id, value, nombre: nombre, precio: precio }])
+  }
   
   const addPrenda = () => {
     
@@ -105,6 +121,8 @@ export default function HomePage() {
       prenda_servicio: '',
       colores: [],
       precio: '',
+      isOk: false,
+      isComodin: ''
     }
     setPrendas([...prendas, newPrenda ])
   }
@@ -115,7 +133,8 @@ export default function HomePage() {
   }
   
 
-  const updatePrenda = (prenda_index, prenda_id, num_prendas, prenda_servicio, colores, precio) => {
+  const updatePrenda = (prenda_index, prenda_id, num_prendas, prenda_servicio, colores, precio, is_comodin) => {
+    console.log(prenda_index, prenda_id, num_prendas, prenda_servicio, colores, precio, is_comodin)
 
     // Crea una copia del arreglo de prendas
     const nuevasPrendas = [...prendas];
@@ -136,7 +155,8 @@ export default function HomePage() {
       prenda_servicio,
       colores,
       precio,
-      is_ok
+      is_ok,
+      is_comodin
     };
 
     // Actualiza el estado prendas con el nuevo arreglo de prendas
@@ -286,6 +306,7 @@ export default function HomePage() {
                                       deletePrenda={ deletePrenda }
                                       listaPreciosServicios={ listaPreciosServicios }
                                       updatePrenda = { updatePrenda }
+                                      handleAddCustomPrecioServicio = { handleAddCustomPrecioServicio }
                                     /> 
                                   )
                                 })

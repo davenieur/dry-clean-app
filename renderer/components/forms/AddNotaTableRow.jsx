@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useForm } from '../../hooks'
-import { Td, Tr, CheckboxGroup, Checkbox, Button, FormControl, FormHelperText, FormErrorMessage, Stack } from '@chakra-ui/react'
+import { Td, Tr, CheckboxGroup, Checkbox, Button, FormControl, FormHelperText, FormErrorMessage, Stack, list } from '@chakra-ui/react'
 import { ModifiableNumberInput } from '../modifiables'
 import { FaTrash } from 'react-icons/fa'
 import { Select } from '@chakra-ui/react'
 import Swal from 'sweetalert2';
 import { ColorMenu } from './ColorMenu'
+import { PrendaServicio } from './PrendaServicio'
 
 const addPrendaFields = {
     num_prendas: '', 
@@ -15,11 +16,13 @@ const addPrendaFields = {
 
 
 
-export const AddNotaTableRow = ({ prendaIndex, deletePrenda,  listaPreciosServicios, updatePrenda }) => {
-    const { num_prendas, prenda_servicio, onInputChange: onInputChange } = useForm(addPrendaFields);  
+export const AddNotaTableRow = ({ handleAddCustomPrecioServicio, prendaIndex, deletePrenda,  listaPreciosServicios, updatePrenda }) => {
+    const { num_prendas, prenda_servicio, onInputChange } = useForm(addPrendaFields);  
 
     // Precio de la prenda
     const [precio, setPrecio] = useState(null);
+
+    const [isComodin, setIsComodin] = useState(false)
     
     // Id de la prenda elegida
     const [prendaId, setPrendaId] = useState('')
@@ -70,10 +73,12 @@ export const AddNotaTableRow = ({ prendaIndex, deletePrenda,  listaPreciosServic
         }
     }
 
+    // Agregar color nuevo
     const handleAddCustomColor = () => {
         setColoresDisponibles([...coloresDisponibles, { color: '', value: '', isCustom: true }])
     }
 
+     // Eliminar color nuevo
     const handleDeleteCustomColor = (color_index) => {
         const newColoresDisponibles = coloresDisponibles.filter((_, index) => index !== color_index);
         setColoresDisponibles(newColoresDisponibles);
@@ -100,8 +105,8 @@ export const AddNotaTableRow = ({ prendaIndex, deletePrenda,  listaPreciosServic
     
     // Actualizar el renglon de cada 
     useEffect(() => {
-        updatePrenda(prendaIndex, prendaId, num_prendas, prenda_servicio, colores, precio);
-    }, [ num_prendas, prenda_servicio, colores, precio ]); 
+        updatePrenda(prendaIndex, prendaId, num_prendas, prenda_servicio, colores, precio, isComodin);
+    }, [ num_prendas, prenda_servicio, colores, precio, isComodin ]); 
 
     return(
         <Tr>
@@ -120,33 +125,13 @@ export const AddNotaTableRow = ({ prendaIndex, deletePrenda,  listaPreciosServic
             </Td>
            
             <Td w="25rem">
-                <FormControl isInvalid={ prenda_servicio === '' } onChange={ onInputChange }  w="fit-content">
-                    <Select 
-                        placeholder='Selecciona prenda - servicio' 
-                        name="prenda_servicio" 
-                        onChange={ onInputChange }
-                        w="20rem"
-                    >
-                        {
-                            listaPreciosServicios.map(( opcion, index ) => {
-                                const { value, nombre } = opcion
-
-                                return(
-                                    <option key={`prenda-servicio-${index}`} value={ value }>{ nombre }</option>
-                                )   
-                            })
-                        }
-
-                    </Select>
-
-                    { prenda_servicio !== '' ? (
-                        <FormHelperText>
-                            Selecciona la prenda y el servicio
-                        </FormHelperText>
-                        ) : (
-                        <FormErrorMessage>Prenda y servicio requeridos</FormErrorMessage>
-                    )}
-                </FormControl>
+                <PrendaServicio 
+                    prenda_servicio={ prenda_servicio } 
+                    onInputChange = { onInputChange } 
+                    listaPreciosServicios = { listaPreciosServicios }
+                    handleAddCustomPrecioServicio = { handleAddCustomPrecioServicio }
+                    setIsComodin = { setIsComodin }
+                />
             </Td>
 
             <Td w="20rem">
