@@ -109,6 +109,21 @@ export const useDryCleanAPI = ()  => {
             throw new Error(error);
         }
     };
+
+    const deleteNota= async (dataNota) => {
+        const { nota_id } = dataNota
+        try {
+            // Verificar que los IDs no sean null
+            if (nota_id === undefined ) {
+                throw new Error('El id de la nota no puede ser undefined.');
+            }
+            // Llamar a la función para eliminar la prenda
+            await window.SucursalesAPI.deleteNota(dataNota);
+        } catch (error) {
+            // Lanzar una excepción en caso de error
+            throw new Error(error);
+        }
+    };
       
 
     return {
@@ -119,6 +134,7 @@ export const useDryCleanAPI = ()  => {
         addNota,
         selectSucursal,
         deletePrenda,
-        addOrUpdatePrenda
+        addOrUpdatePrenda,
+        deleteNota
     };
 };

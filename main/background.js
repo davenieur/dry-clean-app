@@ -549,6 +549,7 @@ function get_prendas_cuenta(prendas){
   return prendas_cuenta
 }
 
+// nombre_cliente es sucursal
 function handlerPrintTicket(event,dataNotas,nombre_cliente){
   
   let notas=[]

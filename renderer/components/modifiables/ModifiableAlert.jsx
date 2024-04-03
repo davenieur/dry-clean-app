@@ -12,7 +12,7 @@ export const ModifiableAlert = ({ leftIcon, fontSize, buttonText, dialogBody, on
 
     return (
         <>
-            <Button colorScheme='red' fontSize={ fontSize }  leftIcon={ leftIcon } onClick={onOpen}>
+            <Button colorScheme='red' fontSize={ fontSize }  leftIcon={ leftIcon } onClick={onOpen} w="20rem">
                 { buttonText }
             </Button>
 

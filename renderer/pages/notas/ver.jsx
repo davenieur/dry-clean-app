@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { Heading, VStack, Grid, GridItem, Text, Card, CardBody, HStack } from '@chakra-ui/react'
+import { ModifiableAlert } from '../../components/modifiables'
+import { FaTrash } from 'react-icons/fa'
+import { Heading, VStack, Grid, GridItem, Text, Card, CardBody, HStack, Accordion, AccordionItem, AccordionButton, AccordionIcon, Box, AccordionPanel } from '@chakra-ui/react'
 import { useForm, useDryCleanAPI } from '../../hooks'
 import { Filtrado } from '../../components/forms'
-import { convierteFecha } from '../../helpers'
+import { convierteFecha, obtenerLunesYViernesDeSemana } from '../../helpers'
+
+import Swal from 'sweetalert2';
 
 const notaFilterFormFields = {
   num_nota: '',
@@ -16,15 +20,24 @@ const notaFilterFormFields = {
 
 export default function HomePage() {
 
-  const { sucursales, selectedSucursal, selectSucursal, getListaNotas } = useDryCleanAPI()
+  const { sucursales, selectedSucursal, selectSucursal, getListaNotas, deleteNota } = useDryCleanAPI()
 
   const { num_nota, cliente_name, onInputChange } = useForm( notaFilterFormFields );
+
 
    // Fecha desde
    const [fecha_desde, setFecha_desde ] = useState(null);
 
    // Fecha hasta
    const [fecha_hasta,  setFecha_hasta] = useState(null)
+
+  useEffect(() => {
+    const { lunes, viernes } = obtenerLunesYViernesDeSemana (new Date())
+
+    setFecha_desde(lunes)
+
+    setFecha_hasta(viernes)
+  }, [])
 
 
   const fields = [
@@ -44,6 +57,34 @@ export default function HomePage() {
     }
   ]
 
+   // Eliminar nota
+   const onDeleteNota = async (nota_id) => {
+
+    const dataNota = {
+      nota_id: nota_id,
+    }
+  
+    try {
+      // Intenta eliminar la nota
+      await deleteNota(dataNota);
+  
+      // Si se elimina correctamente, muestra un mensaje de éxito
+      Swal.fire({
+        title: "Nota eliminada",
+        text: `La nota ha sido eliminada correctamente.`,
+        icon: "success"
+      });
+    } catch (error) {
+      // Si hay un error al eliminar la nota, muestra un mensaje de error
+      Swal.fire({
+        title: "Error",
+        text: "Ha ocurrido un error al intentar eliminar la nota.",
+        icon: "error"
+      });
+    }
+  };
+  
+
 
   const [listaNotas, setListaNotas] = useState([])
   
@@ -57,8 +98,6 @@ export default function HomePage() {
           fecha_desde: convierteFecha(fecha_desde),
           fecha_hasta: convierteFecha(fecha_hasta)
         };
-
-        console.log(dataPrenda)
   
         const listaNotas = await getListaNotas(dataPrenda);
         setListaNotas(listaNotas);
@@ -139,7 +178,7 @@ export default function HomePage() {
                 let [nombre, color] = clave.split("-");
                 return (
                    
-                  <HStack fontSize="sm" color="brand.gray" justify="space-between" w="100%"  key={index}>
+                  <HStack fontSize="sm" color="brand.gray" justify="space-between" w="100%" key={index}>
                     <Text>{`${nombre} - ${color}: ${resumenPrendas[clave].cantidadPrendas} ${resumenPrendas[clave].cantidadPrendas === 1 ? "prenda" : "prendas"}`}</Text>
                     <Text> ${resumenPrendas[clave].totalPrecio} </Text>
                   </HStack>
@@ -190,13 +229,41 @@ export default function HomePage() {
                       </VStack>
 
                       <VStack w="100%" align="flex-start">
-                        <Heading as="h3" fontSize="sm">Prendas</Heading>
-                          { listaPrendas }
+                        
+                        <Accordion allowToggle>
+                          <AccordionItem>
+                           
+                          <AccordionButton>
+                            <Heading as="h3" fontSize="sm">Prendas</Heading>
+                            <AccordionIcon />
+                          </AccordionButton>
+                           
+                          <AccordionPanel >
+                            { listaPrendas }
+                          </AccordionPanel>
+                        </AccordionItem>
+
+                          
+                        </Accordion>
+
+                     
                       </VStack>
                       
-                      <Text fontSize="sm" w="100%" textAlign="end" align="center" fontWeight="bold">
-                        {`Precio total: $${ precio_total ? precio_total : 0 }`}
-                      </Text>
+                      <HStack w="100%">
+                        {/* Eliminar nota */}
+                        <ModifiableAlert 
+                          leftIcon={<FaTrash />}
+                          fontSize="sm"
+                          buttonText="Eliminar nota"
+                          dialogBody={`¿Eliminar nota?`} 
+                          onClick={ onDeleteNota } 
+                          param = { num_nota }
+                        />
+
+                        <Text fontSize="sm" w="100%" textAlign="end" align="center" fontWeight="bold">
+                          {`Precio total: $${ precio_total ? precio_total : 0 }`}
+                        </Text>
+                      </HStack>
                     
                     </CardBody>
                   </Card>
