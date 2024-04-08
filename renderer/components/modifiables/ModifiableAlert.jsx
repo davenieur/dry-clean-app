@@ -23,7 +23,7 @@ export const ModifiableAlert = ({ leftIcon, fontSize, buttonText, dialogBody, on
             >
                 <AlertDialogOverlay>
                 <AlertDialogContent>
-                    <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                    <AlertDialogHeader fontSize='md' fontWeight='bold'>
                         { buttonText }
                     </AlertDialogHeader>
 

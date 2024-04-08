@@ -1,2 +1,2 @@
 export * from './convierteFecha'
-export * from './lunesYViernesDeSemana'
+export * from './lunesYDomingoDeSemana'
