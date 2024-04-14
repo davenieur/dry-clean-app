@@ -21,7 +21,7 @@ const notaFilterFormFields = {
 
 export default function HomePage() {
 
-  const { sucursales, selectedSucursal, selectSucursal, getListaNotas, deleteNota } = useDryCleanAPI()
+  const { sucursales, selectedSucursal, selectSucursal, getListaNotas, deleteNota, printTicket } = useDryCleanAPI()
 
   const { num_nota, cliente_name, onInputChange } = useForm( notaFilterFormFields );
 
@@ -112,6 +112,24 @@ export default function HomePage() {
     fetchData();
   }, [selectedSucursal.id, num_nota, cliente_name, fecha_desde, fecha_hasta ]); 
   
+  // Generar reporte
+  
+  const onGenerateReport = (dataNotas, nombre_cliente) => {
+    
+    console.log(dataNotas, nombre_cliente )
+
+    console.log("Imprimiendo ticket")
+
+    printTicket(dataNotas, nombre_cliente)
+    
+    Swal.fire({
+      title: "Generando reporte",
+      text: `Espere un momento, se está generando el ticket.`,
+      icon: "success"
+    });
+    
+  }
+
 
   return (
     <>
@@ -160,7 +178,7 @@ export default function HomePage() {
                     onDeleteNota={ onDeleteNota }
                   />
                 }
-                onClick={ () => console.log("uwu") }
+                onClick={ () => onGenerateReport( listaNotas, cliente_name ) }
               />
             ) : null
           }

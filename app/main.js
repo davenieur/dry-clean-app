@@ -462,7 +462,7 @@ function handlerGetListNotas(event,dataNota){
 }
 
 function get_prendas_cuenta(prendas){
-  prendas_cuenta={}
+  let prendas_cuenta={}
   prendas.forEach(prenda=>{
     if(prenda['id_prenda'] in prendas_cuenta){
       prendas_cuenta[prenda['id_prenda']]['num_prendas']++

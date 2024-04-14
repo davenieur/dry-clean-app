@@ -99,7 +99,10 @@ export const Nota = ({ nota, onDeleteNota, isReporte = false }) => {
                         </Accordion>
                     </VStack>
                     <HStack w="100%">
-                    {isReporte ? null : (
+                        <Text fontSize="sm" w="100%" textAlign="end" align="center" fontWeight="bold">
+                            {`Precio total: $${precio_total ? precio_total : 0}`}
+                        </Text>
+                    {/* {isReporte ? null : (
                         <ModifiableAlert
                             leftIcon={<FaTrash />}
                             fontSize="sm"
@@ -113,7 +116,7 @@ export const Nota = ({ nota, onDeleteNota, isReporte = false }) => {
                         
                         <Text fontSize="sm" w="100%" textAlign="end" align="center" fontWeight="bold">
                             {`Precio total: $${precio_total ? precio_total : 0}`}
-                        </Text>
+                        </Text> */}
                     </HStack>
                 </VStack>
             }

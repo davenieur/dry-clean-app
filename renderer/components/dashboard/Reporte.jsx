@@ -30,7 +30,7 @@ export const Reporte = ({ fecha_desde, fecha_hasta, notas, onDeleteNota }) => {
         {
           notas.map((nota, index) => {
               return(
-                <AccordionItem>
+                <AccordionItem key={`${index}-nota-reporte`}>
                   <AccordionButton>
                     <Heading as="h3" fontSize="sm">Nota: { nota.num_nota }</Heading>
                     <AccordionIcon />

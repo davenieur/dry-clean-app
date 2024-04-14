@@ -89,6 +89,14 @@ export const useDryCleanAPI = ()  => {
         }
     }
 
+    const printTicket = async(dataNotas, nombre_cliente) => {
+        try { 
+            await window.SucursalesAPI.imprimirTicket(dataNotas, nombre_cliente);
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
     const deletePrenda = async (dataPrenda) => {
         const { id_prenda } = dataPrenda
     
@@ -135,6 +143,7 @@ export const useDryCleanAPI = ()  => {
         selectSucursal,
         deletePrenda,
         addOrUpdatePrenda,
-        deleteNota
+        deleteNota,
+        printTicket
     };
 };
